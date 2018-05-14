@@ -27,11 +27,10 @@ public class TestConnect {
 	public void testSanity() throws IOException {
 		SshClient client = SshClient.setUpDefaultClient();
 		client.start();
-		ConnectFuture future = client.connect(SshServerTests.USERNAME, SshServerTests.HOST, SshServerTests.PORT);
-		future.verify();
+		ConnectFuture future = client.connect(SshServerTests.USERNAME, SshServerTests.HOST, SshServerTests.PORT).verify(20000);
 		try (ClientSession session = future.getSession()) {
 			session.addPasswordIdentity(SshServerTests.PASSWORD);
-			session.auth().verify(60000);
+			session.auth().verify(20000);
 			Assert.assertThat("Connection unsuccessful", true, is(session.isAuthenticated()));
 		}
 	}
