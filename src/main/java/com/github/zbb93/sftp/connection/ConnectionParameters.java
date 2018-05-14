@@ -8,6 +8,7 @@ import org.jetbrains.annotations.*;
  * Contains parameters that are used to obtain a connection to the remote server. This class should be instantiated
  * through the Builder class.
  */
+// todo configure size of channel pool - add parameter for size of channel pool.
 public class ConnectionParameters {
 	/**
 	 * URL of the remote server.

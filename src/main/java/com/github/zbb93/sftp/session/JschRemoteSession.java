@@ -1,15 +1,16 @@
 package com.github.zbb93.sftp.session;
 
-import com.github.zbb93.sftp.channel.Channel;
 import com.github.zbb93.sftp.connection.*;
 import com.github.zbb93.sftp.session.auth.*;
+import com.github.zbb93.sftp.session.channel.Channel;
+import com.github.zbb93.sftp.session.channel.*;
 import com.jcraft.jsch.*;
 import org.jetbrains.annotations.*;
 
 import java.util.*;
 
 /**
- * This implementation of RemoteSession utilizes the Jsch library to connect to an SSH server.
+ * This implementation of RemoteSession utilizes the JSch library to connect to an SSH server.
  */
 class JschRemoteSession extends AbstractRemoteSession {
 	// JSch has a static configuration map that is shared amongst all instances of JSch objects.
@@ -25,6 +26,11 @@ class JschRemoteSession extends AbstractRemoteSession {
 	 * ensure that the Session is still connected.
 	 */
 	protected final @NotNull Session session;
+
+	/**
+	 * Provided to JSch Session to obtain an SFTP channel.
+	 */
+	private static final @NotNull String SFTP_CHANNEL = "sftp";
 
 	/**
 	 * @param host URL of the SSH server to connect to.
@@ -67,8 +73,12 @@ class JschRemoteSession extends AbstractRemoteSession {
 	}
 
 	@Override
-	public Channel getChannel() {
-		throw new UnsupportedOperationException();
+	public Channel getChannel() throws SSHException {
+		try {
+			return new JschSftpChannel((ChannelSftp) session.openChannel(SFTP_CHANNEL));
+		} catch (JSchException e) {
+			throw new SSHException(e);
+		}
 	}
 
 	@Override

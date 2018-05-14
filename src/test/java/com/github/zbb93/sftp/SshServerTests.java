@@ -1,7 +1,9 @@
 package com.github.zbb93.sftp;
 
+import com.google.common.collect.*;
 import org.apache.sshd.server.*;
 import org.apache.sshd.server.keyprovider.*;
+import org.apache.sshd.server.subsystem.sftp.*;
 import org.jetbrains.annotations.*;
 import org.junit.*;
 import org.junit.runner.*;
@@ -14,9 +16,10 @@ import java.io.*;
  * set up and tear down the SSH server used for testing.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses(
-		TestConnect.class
-)
+@Suite.SuiteClasses({
+		TestConnect.class,
+		TestSftp.class
+})
 public class SshServerTests {
 
 	/**
@@ -55,6 +58,7 @@ public class SshServerTests {
 		server.setPort(PORT);
 		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
 		server.setPasswordAuthenticator((username, password, session) -> username.equals(USERNAME) && password.equals(PASSWORD));
+		server.setSubsystemFactories(Lists.newArrayList(new SftpSubsystemFactory()));
 		server.start();
 	}
 

@@ -1,7 +1,7 @@
 package com.github.zbb93.sftp.session;
 
-import com.github.zbb93.sftp.channel.*;
 import com.github.zbb93.sftp.connection.*;
+import com.github.zbb93.sftp.session.channel.*;
 
 import java.io.*;
 
