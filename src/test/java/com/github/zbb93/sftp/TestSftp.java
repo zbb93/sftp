@@ -45,6 +45,30 @@ public class TestSftp {
 		}
 	}
 
+	@Test
+	public void testUploadFile() throws IOException, SSHException {
+		byte[] content = "hello, world!".getBytes();
+		Path tmp = Paths.get("tmp.txt").toAbsolutePath();
+		try {
+			Files.createFile(tmp);
+			Files.write(tmp, content);
+			ConnectionParameters params = buildConnectionParameters();
+			try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+				connection.connect();
+				connection.put(tmp, "test1.txt");
+				try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+					connection.get("test1.txt", out);
+					byte[] remoteContent = out.toByteArray();
+					Assert.assertThat("Downloaded file does not match uploaded file.", Arrays.equals(content, remoteContent),
+							is(true));
+				}
+			}
+		} finally {
+			Files.deleteIfExists(tmp);
+			Files.deleteIfExists(Paths.get("test1.txt"));
+		}
+	}
+
 	/**
 	 * Constructs a ConnectionParameters object to be used to connect to the test SSH server. The Host and Port are
 	 * configured in the ConnectionTest Suite and the Authentication is provided by the calling method.

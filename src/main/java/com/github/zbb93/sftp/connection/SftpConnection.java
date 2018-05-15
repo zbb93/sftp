@@ -82,6 +82,12 @@ class SftpConnection implements Connection {
 		channel.put(source, destination);
 	}
 
+	@Override
+	public void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException {
+		Channel channel = getNextAvailableChannel();
+		channel.get(source, outputStream);
+	}
+
 	@NotNull
 	private Channel getNextAvailableChannel() {
 		try {

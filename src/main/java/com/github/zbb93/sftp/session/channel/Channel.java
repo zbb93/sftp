@@ -15,4 +15,5 @@ public interface Channel extends Closeable{
 	@NotNull
 	Collection<String> ls(final @NotNull String path) throws SSHException;
 	void put(final @NotNull Path source, final @NotNull String dest) throws SSHException;
+	void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException;
 }

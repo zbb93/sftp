@@ -6,6 +6,7 @@ import com.google.common.collect.*;
 import com.jcraft.jsch.*;
 import org.jetbrains.annotations.*;
 
+import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
@@ -44,6 +45,15 @@ public class JschSftpChannel implements Channel {
 	public void put(final @NotNull Path source, final @NotNull String dest) throws SSHException {
 		try {
 			channel.put(source.toString(), dest);
+		} catch (SftpException e) {
+			throw new SSHException(e);
+		}
+	}
+
+	@Override
+	public void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException {
+		try {
+			channel.get(source, outputStream);
 		} catch (SftpException e) {
 			throw new SSHException(e);
 		}
