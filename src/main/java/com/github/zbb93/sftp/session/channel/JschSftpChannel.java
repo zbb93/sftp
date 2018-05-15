@@ -1,6 +1,7 @@
 package com.github.zbb93.sftp.session.channel;
 
 import com.github.zbb93.sftp.connection.*;
+import com.google.common.base.*;
 import com.google.common.collect.*;
 import com.jcraft.jsch.*;
 import org.jetbrains.annotations.*;
@@ -26,6 +27,7 @@ public class JschSftpChannel implements Channel {
 
 	@Override
 	public @NotNull Collection<String> ls(@NotNull String path) throws SSHException {
+		Preconditions.checkArgument(!path.isEmpty(), "Empty string provided as path");
 		Collection<String> files = Lists.newLinkedList();
 		try {
 			Vector untypedFileNames = channel.ls(path);

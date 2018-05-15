@@ -18,6 +18,7 @@ public interface Connection extends Closeable {
 	void connect() throws SSHException;
 
 	@NotNull
+	// todo implement an Object to parse these Strings and provide access to file attributes.
 	Collection<String> ls(final @NotNull String path) throws SSHException;
 
 	void put(final @NotNull Path source, final @NotNull String destination) throws SSHException;

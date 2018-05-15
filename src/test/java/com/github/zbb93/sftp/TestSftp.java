@@ -6,6 +6,7 @@ import org.junit.*;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.*;
 
@@ -27,6 +28,20 @@ public class TestSftp {
 		} finally {
 			Files.deleteIfExists(tmp);
 			Files.deleteIfExists(Paths.get("test1.txt"));
+		}
+	}
+
+	@Test
+	// todo this test needs to be improved once there is an object for remote files.
+	public void testDirectoryListing() throws IOException, SSHException {
+		ConnectionParameters params = buildConnectionParameters();
+		try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+			connection.connect();
+			Collection<String> directoryListing = connection.ls(".");
+			int workingDirFileCount = (int) Files.list(Paths.get("")).count();
+			// We add two to the working dir file count because the directory listing contains entries for '.' and '..'
+			Assert.assertThat("Incorrect file count in working directory", directoryListing.size(),
+					is(workingDirFileCount + 2));
 		}
 	}
 
