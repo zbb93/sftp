@@ -17,7 +17,7 @@ import java.io.*;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-		TestConnect.class,
+		TestConnection.class,
 		TestSftp.class
 })
 public class SshServerTests {

@@ -12,9 +12,9 @@ import java.io.*;
 import static org.hamcrest.CoreMatchers.*;
 
 /**
- * Verifies that it is possible to connect to a remote server using various authentication methods.
+ * Tests for implementations of the Connection interface.
  */
-public class TestConnect {
+public class TestConnection {
 
 	/**
 	 * Sanity test to ensure that the SSH server used for testing is properly configured.
@@ -62,6 +62,15 @@ public class TestConnect {
 		} catch (SSHException e) {
 			Assert.assertThat("Unexpected SSHException occurred.", e.getMessage(), containsString("timeout"));
 		}
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testInterruptedExceptionHandling() throws SSHException {
+		ConnectionParameters connectionParameters = buildPasswordConnectionParameters();
+		Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters);
+		connection.connect();
+		Thread.currentThread().interrupt();
+		connection.ls(".");
 	}
 
 	/**
