@@ -25,7 +25,7 @@ public class TestSftp {
 			Assert.assertThat("File not transferred correctly", Files.exists(Paths.get("test1.txt")), is(true));
 		} finally {
 			Files.deleteIfExists(tmp);
-			Files.deleteIfExists(Paths.get("test-transfer/test1.txt"));
+			Files.deleteIfExists(Paths.get("test1.txt"));
 		}
 	}
 
