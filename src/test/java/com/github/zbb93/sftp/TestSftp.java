@@ -69,6 +69,22 @@ public class TestSftp {
 		}
 	}
 
+	@Test
+	public void testRemoteDirectoryCreation() throws SSHException, IOException {
+		ConnectionParameters params = buildConnectionParameters();
+		try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+			connection.connect();
+			int startingWorkingDirFileCount = (int) Files.list(Paths.get("")).count();
+			connection.mkdir("testdir");
+			int finalWorkingDirFileCount = (int) Files.list(Paths.get("")).count();
+			// We add two to the working dir file count because the directory listing contains entries for '.' and '..'
+			Assert.assertThat("Incorrect file count in working directory", finalWorkingDirFileCount,
+					is(startingWorkingDirFileCount + 1));
+		} finally {
+			Files.deleteIfExists(Paths.get("testdir"));
+		}
+	}
+
 	/**
 	 * Constructs a ConnectionParameters object to be used to connect to the test SSH server. The Host and Port are
 	 * configured in the ConnectionTest Suite and the Authentication is provided by the calling method.

@@ -40,6 +40,7 @@ public interface Connection extends Closeable {
 	 */
 	void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException;
 
+	void mkdir(final @NotNull String path) throws SSHException;
 	/**
 	 * @return true if this Connection is currently connected to the remote server and false otherwise.
 	 */

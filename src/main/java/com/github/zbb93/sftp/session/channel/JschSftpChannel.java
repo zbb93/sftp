@@ -60,6 +60,15 @@ public class JschSftpChannel implements Channel {
 	}
 
 	@Override
+	public void mkdir(final @NotNull String path) throws SSHException {
+		try {
+			channel.mkdir(path);
+		} catch (SftpException e) {
+			throw new SSHException(e);
+		}
+	}
+
+	@Override
 	public void close() {
 		channel.disconnect();
 	}
