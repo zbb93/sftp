@@ -85,6 +85,16 @@ public class TestSftp {
 		}
 	}
 
+	@Test
+	public void testObtainWorkingDirectory() throws IOException, SSHException {
+		ConnectionParameters params = buildConnectionParameters();
+		try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+			connection.connect();
+			String workingDirectory = connection.pwd();
+			Assert.assertThat("Unexpected working directory", workingDirectory, is(Paths.get("").toAbsolutePath().toString()));
+		}
+	}
+
 	/**
 	 * Constructs a ConnectionParameters object to be used to connect to the test SSH server. The Host and Port are
 	 * configured in the ConnectionTest Suite and the Authentication is provided by the calling method.

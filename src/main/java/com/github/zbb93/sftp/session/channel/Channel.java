@@ -17,4 +17,5 @@ public interface Channel extends Closeable{
 	void put(final @NotNull Path source, final @NotNull String dest) throws SSHException;
 	void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException;
 	void mkdir(final @NotNull String path) throws SSHException;
+	String pwd() throws SSHException;
 }

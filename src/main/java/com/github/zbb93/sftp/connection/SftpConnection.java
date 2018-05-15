@@ -3,6 +3,7 @@ package com.github.zbb93.sftp.connection;
 import com.diffplug.common.base.*;
 import com.github.zbb93.sftp.session.*;
 import com.github.zbb93.sftp.session.channel.*;
+import com.google.common.base.*;
 import com.google.common.collect.*;
 import org.jetbrains.annotations.*;
 
@@ -94,8 +95,16 @@ class SftpConnection implements Connection {
 		channel.mkdir(path);
 	}
 
+	@Override
+	public String pwd() throws SSHException {
+		Channel channel = getNextAvailableChannel();
+		return channel.pwd();
+	}
+
 	@NotNull
 	private Channel getNextAvailableChannel() {
+		Preconditions.checkState(channels.size() > 0, "Connection#connect should be invoked before " +
+				"invoking other methods.");
 		try {
 			return channels.take();
 		} catch (InterruptedException e) {

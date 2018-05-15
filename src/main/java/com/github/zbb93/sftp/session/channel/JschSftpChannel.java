@@ -69,6 +69,15 @@ public class JschSftpChannel implements Channel {
 	}
 
 	@Override
+	public String pwd() throws SSHException {
+		try {
+			return channel.pwd();
+		} catch (SftpException e) {
+			throw new SSHException(e);
+		}
+	}
+
+	@Override
 	public void close() {
 		channel.disconnect();
 	}
