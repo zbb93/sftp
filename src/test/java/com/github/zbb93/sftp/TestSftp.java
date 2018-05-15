@@ -19,10 +19,11 @@ public class TestSftp {
 			Files.createFile(tmp);
 			Files.write(tmp, content);
 			ConnectionParameters params = buildConnectionParameters();
-			Connection connection = ConnectionFactory.INSTANCE.getConnection(params);
-			connection.connect();
-			connection.put(tmp, "test1.txt");
-			Assert.assertThat("File not transferred correctly", Files.exists(Paths.get("test1.txt")), is(true));
+			try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+				connection.connect();
+				connection.put(tmp, "test1.txt");
+				Assert.assertThat("File not transferred correctly", Files.exists(Paths.get("test1.txt")), is(true));
+			}
 		} finally {
 			Files.deleteIfExists(tmp);
 			Files.deleteIfExists(Paths.get("test1.txt"));
