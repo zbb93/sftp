@@ -1,15 +1,20 @@
 package com.github.zbb93.sftp;
 
-import com.google.common.collect.*;
-import org.apache.sshd.server.*;
-import org.apache.sshd.server.keyprovider.*;
-import org.apache.sshd.server.subsystem.sftp.*;
-import org.jetbrains.annotations.*;
-import org.junit.*;
-import org.junit.runner.*;
-import org.junit.runners.*;
+import com.google.common.collect.Lists;
+import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
+import org.jetbrains.annotations.NotNull;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-import java.io.*;
+import java.io.IOException;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This is a suite of tests that need to be run against an SSH server. The methods executed before and after the tests
@@ -54,6 +59,7 @@ public final class SshServerTests {
 	 */
 	@BeforeClass
 	public static void setUp() throws IOException {
+		configureLogger();
 		server.setHost(HOST);
 		server.setPort(PORT);
 		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
@@ -63,6 +69,13 @@ public final class SshServerTests {
 		server.start();
 	}
 
+	private static void configureLogger() {
+		final Logger globalLogger = Logger.getLogger("");
+		globalLogger.setLevel(Level.FINEST);
+		final Handler handler = new ConsoleHandler();
+		handler.setLevel(Level.FINEST);
+		globalLogger.addHandler(handler);
+	}
 	/**
 	 * Shuts down the SFTP server used for testing.
 	 *
