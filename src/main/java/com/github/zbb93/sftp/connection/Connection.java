@@ -1,16 +1,16 @@
 package com.github.zbb93.sftp.connection;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.Collection;
 
 /**
  * Implementations of this class are responsible for interacting with an SSH server and performing operations
  * like transferring files to as well as copying, deleting, and renaming files on the remote server.
  */
-public interface Connection extends Closeable {
+public interface Connection extends AutoCloseable {
 	/**
 	 * Establish a connection to the remote server.
 	 *
@@ -74,5 +74,8 @@ public interface Connection extends Closeable {
 	 * @return true if this Connection is currently connected to the remote server and false otherwise.
 	 */
 	boolean isConnected();
+
+	@Override
+	void close() throws SSHException;
 }
 

@@ -1,15 +1,22 @@
 package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.connection.*;
-import com.github.zbb93.sftp.session.auth.*;
-import org.apache.sshd.client.*;
-import org.apache.sshd.client.future.*;
-import org.apache.sshd.client.session.*;
-import org.junit.*;
+import com.github.zbb93.sftp.connection.Connection;
+import com.github.zbb93.sftp.connection.ConnectionFactory;
+import com.github.zbb93.sftp.connection.ConnectionParameters;
+import com.github.zbb93.sftp.connection.SSHException;
+import com.github.zbb93.sftp.session.auth.Authentication;
+import com.github.zbb93.sftp.session.auth.AuthenticationFactory;
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.future.AuthFuture;
+import org.apache.sshd.client.future.ConnectFuture;
+import org.apache.sshd.client.session.ClientSession;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.io.*;
+import java.io.IOException;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  * Tests for implementations of the Connection interface.
@@ -44,11 +51,12 @@ public class TestConnection {
 	 * @throws SSHException if an error occurs while connecting to the SSH server.
 	 */
 	@Test
-	public void testPasswordConnect() throws SSHException {
+	public void testPasswordConnect() throws Exception {
 		final ConnectionParameters connectionParameters = buildPasswordConnectionParameters();
-		final Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters);
-		connection.connect();
-		Assert.assertThat("Connection unsuccessful", true, is(connection.isConnected()));
+		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters)) {
+			connection.connect();
+			Assert.assertThat("Connection unsuccessful", true, is(connection.isConnected()));
+		}
 	}
 
 	/**
@@ -57,10 +65,9 @@ public class TestConnection {
 	 * @throws SSHException if an unexpected error occurs while connecting to the SSH server.
 	 */
 	@Test
-	public void testConnectionTimeout() throws SSHException {
+	public void testConnectionTimeout() {
 		final ConnectionParameters connectionParameters = buildPasswordConnectionParameters("10.255.255.1", 1);
-		final Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters);
-		try {
+		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters)) {
 			connection.connect();
 			Assert.fail("Connection did not timeout.");
 		} catch (final SSHException e) {

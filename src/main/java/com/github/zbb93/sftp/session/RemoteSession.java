@@ -1,15 +1,13 @@
 package com.github.zbb93.sftp.session;
 
-import com.github.zbb93.sftp.connection.*;
-import com.github.zbb93.sftp.session.channel.*;
-
-import java.io.*;
+import com.github.zbb93.sftp.connection.SSHException;
+import com.github.zbb93.sftp.session.channel.Channel;
 
 /**
  * An SSH connection to a remote server. The session spawns channels that are used to perform
  * SFTP operations. This interface is intended to be the internal version of the Connection Interface.
  */
-public interface RemoteSession extends Closeable {
+public interface RemoteSession extends AutoCloseable {
 	/**
 	 * Establishes an SSH connection with the remote server.
 	 *
@@ -42,4 +40,6 @@ public interface RemoteSession extends Closeable {
 	 * @param password the password for this session to use when connected to the remote server.
 	 */
 	void setPassword(String password);
+
+	void close() throws SSHException;
 }

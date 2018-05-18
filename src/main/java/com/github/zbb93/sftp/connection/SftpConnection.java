@@ -151,7 +151,7 @@ class SftpConnection implements Connection {
 	 * @throws IOException if an error occurs disconnecting from the SSH server.
 	 */
 	@Override
-	public void close() throws IOException {
+	public void close() throws SSHException {
 		LOGGER.info("Disconnecting from remote server...");
 		session.close();
 		closeChannels();
