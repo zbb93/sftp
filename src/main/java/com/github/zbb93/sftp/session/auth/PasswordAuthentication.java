@@ -15,7 +15,6 @@ class PasswordAuthentication extends AbstractAuthentication {
 	 */
 	PasswordAuthentication(final @NotNull String username, final @NotNull String password) {
 		super(username);
-		this.username = username;
 		this.password = password;
 	}
 
@@ -25,7 +24,7 @@ class PasswordAuthentication extends AbstractAuthentication {
 	 * @param session the RemoteSession to configure authentication for.
 	 */
 	@Override
-	public void authenticate(@NotNull RemoteSession session) {
+	public void authenticate(final @NotNull RemoteSession session) {
 		session.setPassword(password);
 	}
 }

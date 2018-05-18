@@ -42,24 +42,23 @@ class SftpConnection implements Connection {
 	 * @return RemoteSession Object that is ready to connect to the SSH server.
 	 * @throws SSHException if the host obtained from the ConnectionProviders cannot be resolved.
 	 */
-	@NotNull
-	private RemoteSession createSession(final @NotNull ConnectionParameters parameters) throws SSHException {
+	private @NotNull RemoteSession createSession(final @NotNull ConnectionParameters parameters) throws SSHException {
 		return RemoteSessionFactory.INSTANCE.getSession(parameters);
 	}
 
 	@Override
 	public void connect() throws SSHException {
 		session.connect();
-		channels.addAll(openChannels(session));
+		final Collection<Channel> availableChannels = openChannels(session);
+		channels.addAll(availableChannels);
 	}
 
-	@NotNull
-	private Collection<Channel> openChannels(final @NotNull RemoteSession session) throws SSHException {
+	private @NotNull Collection<Channel> openChannels(final @NotNull RemoteSession session) throws SSHException {
 		// todo configure size of channel pool - use configured value to determine size of channel pool.
-		int channelPoolSize = 10;
-		Collection<Channel> channels = Lists.newLinkedList();
+		final int channelPoolSize = 10;
+		final Collection<Channel> channels = Lists.newLinkedList();
 		for (int i = 0; i < channelPoolSize; i++) {
-			Channel channel = session.getChannel();
+			final Channel channel = session.getChannel();
 			channel.connect();
 			channels.add(channel);
 		}
@@ -72,45 +71,48 @@ class SftpConnection implements Connection {
 	}
 
 	@Override
-	public @NotNull Collection<String> ls(@NotNull String path) throws SSHException {
-		Channel channel = getNextAvailableChannel();
+	public @NotNull Collection<String> ls(final @NotNull String path) throws SSHException, InterruptedException {
+		final Channel channel = getNextAvailableChannel();
 		return channel.ls(path);
 	}
 
 	@Override
-	public void put(@NotNull Path source, @NotNull String destination) throws SSHException {
-		Channel channel = getNextAvailableChannel();
+	public void put(final @NotNull Path source, final @NotNull String destination) throws SSHException,
+			InterruptedException {
+		final Channel channel = getNextAvailableChannel();
 		channel.put(source, destination);
 	}
 
 	@Override
-	public void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException {
-		Channel channel = getNextAvailableChannel();
+	public void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException,
+			InterruptedException {
+		final Channel channel = getNextAvailableChannel();
 		channel.get(source, outputStream);
 	}
 
 	@Override
-	public void mkdir(final @NotNull String path) throws SSHException {
-		Channel channel = getNextAvailableChannel();
-		channel.mkdir(path);
+	public void mkdir(final @NotNull String name) throws SSHException, InterruptedException {
+		final Channel channel = getNextAvailableChannel();
+		channel.mkdir(name);
 	}
 
 	@Override
-	public String pwd() throws SSHException {
-		Channel channel = getNextAvailableChannel();
+	public @NotNull String pwd() throws SSHException, InterruptedException {
+		final Channel channel = getNextAvailableChannel();
 		return channel.pwd();
 	}
 
-	@NotNull
-	private Channel getNextAvailableChannel() {
-		Preconditions.checkState(channels.size() > 0, "Connection#connect should be invoked before " +
-				"invoking other methods.");
-		try {
-			return channels.take();
-		} catch (InterruptedException e) {
-			// todo is throwing RuntimeException the correct approach?
-			throw new RuntimeException(e);
-		}
+	/**
+	 * Obtains the next available channel from the channel queue. If no channels are available the method blocks until
+	 * a channel is available.
+	 *
+	 * @return channel from the channel queue.
+	 * @throws InterruptedException if interrupted while waiting for an available channel.
+	 */
+	private @NotNull Channel getNextAvailableChannel() throws InterruptedException {
+		Preconditions.checkState(!channels.isEmpty(),
+														 "Connection#connect should be invoked before invoking other methods.");
+		return channels.take();
 	}
 
 	/**
@@ -123,7 +125,7 @@ class SftpConnection implements Connection {
 		closeChannels();
 	}
 
-	private void closeChannels() throws IOException {
+	private void closeChannels() {
 		channels.forEach(Errors.rethrow().wrap(Closeable::close));
 	}
 }

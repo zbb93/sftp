@@ -33,7 +33,8 @@ abstract class AbstractRemoteSession implements RemoteSession {
 	 * @param timeout amount of time (in seconds) that a connection attempt is allowed to take.
 	 * @param authentication Authentication implementation to use to authenticate with the SSH server.
 	 */
-	AbstractRemoteSession(final @NotNull String host, final int port, final int timeout, final @NotNull Authentication authentication) {
+	AbstractRemoteSession(final @NotNull String host, final int port, final int timeout,
+												final @NotNull Authentication authentication) {
 		this.host = host;
 		this.port = port;
 		this.timeout = timeout;

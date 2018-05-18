@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.*;
  * Tests for implementations of the Connection interface.
  */
 public class TestConnection {
+	private static final long TEST_TIMEOUT = 20000L;
 
 	/**
 	 * Sanity test to ensure that the SSH server used for testing is properly configured.
@@ -24,12 +25,15 @@ public class TestConnection {
 	 */
 	@Test
 	public void testSanity() throws IOException {
-		SshClient client = SshClient.setUpDefaultClient();
+		final long connectionTimeoutMs = TEST_TIMEOUT;
+		final SshClient client = SshClient.setUpDefaultClient();
 		client.start();
-		ConnectFuture future = client.connect(SshServerTests.USERNAME, SshServerTests.HOST, SshServerTests.PORT).verify(20000);
-		try (ClientSession session = future.getSession()) {
+		final ConnectFuture connectFuture = client.connect(SshServerTests.USERNAME, SshServerTests.HOST, SshServerTests.PORT);
+		final ConnectFuture future = connectFuture.verify(connectionTimeoutMs);
+		try (final ClientSession session = future.getSession()) {
 			session.addPasswordIdentity(SshServerTests.PASSWORD);
-			session.auth().verify(20000);
+			final AuthFuture authFuture = session.auth();
+			authFuture.verify(connectionTimeoutMs);
 			Assert.assertThat("Connection unsuccessful", true, is(session.isAuthenticated()));
 		}
 	}
@@ -41,8 +45,8 @@ public class TestConnection {
 	 */
 	@Test
 	public void testPasswordConnect() throws SSHException {
-		ConnectionParameters connectionParameters = buildPasswordConnectionParameters();
-		Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters);
+		final ConnectionParameters connectionParameters = buildPasswordConnectionParameters();
+		final Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters);
 		connection.connect();
 		Assert.assertThat("Connection unsuccessful", true, is(connection.isConnected()));
 	}
@@ -54,23 +58,14 @@ public class TestConnection {
 	 */
 	@Test
 	public void testConnectionTimeout() throws SSHException {
-		ConnectionParameters connectionParameters = buildPasswordConnectionParameters("10.255.255.1", 1);
-		Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters);
+		final ConnectionParameters connectionParameters = buildPasswordConnectionParameters("10.255.255.1", 1);
+		final Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters);
 		try {
 			connection.connect();
 			Assert.fail("Connection did not timeout.");
-		} catch (SSHException e) {
+		} catch (final SSHException e) {
 			Assert.assertThat("Unexpected SSHException occurred.", e.getMessage(), containsString("timeout"));
 		}
-	}
-
-	@Test(expected = RuntimeException.class)
-	public void testInterruptedExceptionHandling() throws SSHException {
-		ConnectionParameters connectionParameters = buildPasswordConnectionParameters();
-		Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters);
-		connection.connect();
-		Thread.currentThread().interrupt();
-		connection.ls(".");
 	}
 
 	/**
@@ -84,10 +79,11 @@ public class TestConnection {
 	}
 
 	private ConnectionParameters buildPasswordConnectionParameters(final String host, final int timeout) {
-		Authentication passwordAuthentication = AuthenticationFactory.INSTANCE.authenticationFor(SshServerTests.USERNAME,
-				SshServerTests.PASSWORD);
-		ConnectionParameters.Builder builder = new ConnectionParameters.Builder(host, passwordAuthentication,
-				SshServerTests.PORT);
+		final Authentication passwordAuthentication = AuthenticationFactory.INSTANCE.authenticationFor(
+				SshServerTests.USERNAME, SshServerTests.PASSWORD
+		);
+		final ConnectionParameters.Builder builder = new ConnectionParameters.Builder(host, passwordAuthentication,
+																																									SshServerTests.PORT);
 		builder.setTimeout(timeout);
 		return builder.build();
 	}

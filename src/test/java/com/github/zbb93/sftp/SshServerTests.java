@@ -20,7 +20,7 @@ import java.io.*;
 		TestConnection.class,
 		TestSftp.class
 })
-public class SshServerTests {
+public final class SshServerTests {
 
 	/**
 	 * SSH server used for testing.
@@ -57,7 +57,8 @@ public class SshServerTests {
 		server.setHost(HOST);
 		server.setPort(PORT);
 		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
-		server.setPasswordAuthenticator((username, password, session) -> username.equals(USERNAME) && password.equals(PASSWORD));
+		server.setPasswordAuthenticator((username, password, session) ->
+																				username.equals(USERNAME) && password.equals(PASSWORD));
 		server.setSubsystemFactories(Lists.newArrayList(new SftpSubsystemFactory()));
 		server.start();
 	}

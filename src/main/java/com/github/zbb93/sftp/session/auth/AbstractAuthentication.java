@@ -10,7 +10,7 @@ abstract class AbstractAuthentication implements Authentication {
 	/**
 	 * Username that will be used to connect to the remote server.
 	 */
-	@NotNull String username;
+	private final @NotNull String username;
 
 	/**
 	 * @param username the username to connect to the remote server with.
@@ -19,9 +19,8 @@ abstract class AbstractAuthentication implements Authentication {
 		this.username = username;
 	}
 
-	@NotNull
 	@Override
-	public String getUser() {
+	public @NotNull String getUser() {
 		return username;
 	}
 }

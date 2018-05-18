@@ -9,7 +9,7 @@ import org.jetbrains.annotations.*;
  * through the Builder class.
  */
 // todo configure size of channel pool - add parameter for size of channel pool.
-public class ConnectionParameters {
+public final class ConnectionParameters {
 	/**
 	 * URL of the remote server.
 	 */
@@ -31,6 +31,11 @@ public class ConnectionParameters {
 	private final int timeout;
 
 	/**
+	 * Default timeout value in seconds.
+	 */
+	private static final int DEFAULT_TIMEOUT = 60;
+
+	/**
 	 * @param url the URL of the remote server.
 	 * @param authentication configures authentication to the remote server.
 	 * @param port the port to connect to on the remote server.
@@ -47,16 +52,14 @@ public class ConnectionParameters {
 	/**
 	 * @return the URL of the remote server.
 	 */
-	@NotNull
-	public String getUrl() {
+	public @NotNull String getUrl() {
 		return url;
 	}
 
 	/**
 	 * @return the Authentication Object that will configure authentication to the remote server.
 	 */
-	@NotNull
-	public Authentication getAuthentication() {
+	public @NotNull Authentication getAuthentication() {
 		return authentication;
 	}
 
@@ -131,16 +134,16 @@ public class ConnectionParameters {
 		 * @return the timeout value of the ConnectionParameters Object being built.
 		 */
 		private int getTimeout() {
-			return timeout > -1 ? timeout : 60;
+			return (timeout > -1) ? timeout : DEFAULT_TIMEOUT;
 		}
 
 		/**
 		 * @return ConnectionParameters object created using the instance variables of this Builder object.
 		 * @throws IllegalStateException if required parameters are not set.
 		 */
-		@NotNull
-		public ConnectionParameters build() {
-			return new ConnectionParameters(url, authentication, port, getTimeout());
+		public @NotNull ConnectionParameters build() {
+			final int timeout = getTimeout();
+			return new ConnectionParameters(url, authentication, port, timeout);
 		}
 	}
 }

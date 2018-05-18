@@ -13,13 +13,22 @@ import java.util.*;
 public interface Connection extends Closeable {
 	/**
 	 * Establish a connection to the remote server.
+	 *
 	 * @throws SSHException if an error occurs while connecting to the remote server.
 	 */
 	void connect() throws SSHException;
 
+	/**
+	 * Obtains the directory listing of the a directory. Use '.' to list the working directory.
+	 *
+	 * @param path path to the directory to list.
+	 * @return Collection of Strings where each string corresponds to a file in the directory.
+	 * @throws SSHException if an error occurs while obtaining the directory listing.
+	 * @throws InterruptedException if interrupted while waiting for an available channel.
+	 */
 	@NotNull
 	// todo implement an Object to parse these Strings and provide access to file attributes.
-	Collection<String> ls(final @NotNull String path) throws SSHException;
+	Collection<String> ls(final @NotNull String path) throws SSHException, InterruptedException;
 
 	/**
 	 * Uploads a file to the remote server.
@@ -27,8 +36,9 @@ public interface Connection extends Closeable {
 	 * @param source path to file to upload.
 	 * @param destination path on remote server to upload file to.
 	 * @throws SSHException if an error occurs while uploading the file.
+	 * @throws InterruptedException if interrupted while waiting for an available channel.
 	 */
-	void put(final @NotNull Path source, final @NotNull String destination) throws SSHException;
+	void put(final @NotNull Path source, final @NotNull String destination) throws SSHException, InterruptedException;
 
 	/**
 	 * Downloads a file from the remote server and writes the output to the provided OutputStream. The OutputStream is
@@ -37,12 +47,28 @@ public interface Connection extends Closeable {
 	 * @param source path to file to download from remote server.
 	 * @param outputStream OutputStream to write downloaded file to.
 	 * @throws SSHException if an error occurs while downloading the file.
+	 * @throws InterruptedException if interrupted while waiting for an available channel.
 	 */
-	void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException;
+	void get(final @NotNull String source, final @NotNull OutputStream outputStream)
+			throws SSHException, InterruptedException;
 
-	void mkdir(final @NotNull String path) throws SSHException;
+	/**
+	 * Creates a new directory on the remote server. Note that this method is not able to create multiple
+	 * directories at once.
+	 *
+	 * @param name name of the directory to create.
+	 * @throws SSHException if an error occurs while communicating while creating the directory.
+	 * @throws InterruptedException if interrupted while waiting for an available channel.
+	 */
+	// todo validate input to make sure that it does not contain file separators?
+	void mkdir(final @NotNull String name) throws SSHException, InterruptedException;
 
-	String pwd() throws SSHException;
+	/**
+	 * @return absolute path of the working directory on the remote server.
+	 * @throws SSHException if an error occurs while obtaining the working directory.
+	 * @throws InterruptedException if interrupted while waiting for an available channel.
+	 */
+	@NotNull String pwd() throws SSHException, InterruptedException;
 
 	/**
 	 * @return true if this Connection is currently connected to the remote server and false otherwise.

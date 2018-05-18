@@ -13,14 +13,14 @@ import static org.hamcrest.CoreMatchers.*;
 public class TestSftp {
 
 	@Test
-	public void testFileTransfer() throws IOException, SSHException {
-		byte[] content = "hello, world!".getBytes();
-		Path tmp = Paths.get("tmp.txt").toAbsolutePath();
+	public void testFileTransfer() throws Exception {
+		final byte[] content = "hello, world!".getBytes();
+		final Path tmp = Paths.get("tmp.txt").toAbsolutePath();
 		try {
 			Files.createFile(tmp);
 			Files.write(tmp, content);
-			ConnectionParameters params = buildConnectionParameters();
-			try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+			final ConnectionParameters params = buildConnectionParameters();
+			try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
 				connection.connect();
 				connection.put(tmp, "test1.txt");
 				Assert.assertThat("File not transferred correctly", Files.exists(Paths.get("test1.txt")), is(true));
@@ -33,12 +33,12 @@ public class TestSftp {
 
 	@Test
 	// todo this test needs to be improved once there is an object for remote files.
-	public void testDirectoryListing() throws IOException, SSHException {
-		ConnectionParameters params = buildConnectionParameters();
-		try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+	public void testDirectoryListing() throws Exception {
+		final ConnectionParameters params = buildConnectionParameters();
+		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
 			connection.connect();
-			Collection<String> directoryListing = connection.ls(".");
-			int workingDirFileCount = (int) Files.list(Paths.get("")).count();
+			final Collection<String> directoryListing = connection.ls(".");
+			final int workingDirFileCount = (int) Files.list(Paths.get("")).count();
 			// We add two to the working dir file count because the directory listing contains entries for '.' and '..'
 			Assert.assertThat("Incorrect file count in working directory", directoryListing.size(),
 					is(workingDirFileCount + 2));
@@ -46,19 +46,19 @@ public class TestSftp {
 	}
 
 	@Test
-	public void testUploadFile() throws IOException, SSHException {
-		byte[] content = "hello, world!".getBytes();
-		Path tmp = Paths.get("tmp.txt").toAbsolutePath();
+	public void testUploadFile() throws Exception {
+		final byte[] content = "hello, world!".getBytes();
+		final Path tmp = Paths.get("tmp.txt").toAbsolutePath();
 		try {
 			Files.createFile(tmp);
 			Files.write(tmp, content);
-			ConnectionParameters params = buildConnectionParameters();
-			try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+			final ConnectionParameters params = buildConnectionParameters();
+			try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
 				connection.connect();
 				connection.put(tmp, "test1.txt");
-				try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+				try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 					connection.get("test1.txt", out);
-					byte[] remoteContent = out.toByteArray();
+					final byte[] remoteContent = out.toByteArray();
 					Assert.assertThat("Downloaded file does not match uploaded file.", Arrays.equals(content, remoteContent),
 							is(true));
 				}
@@ -70,13 +70,13 @@ public class TestSftp {
 	}
 
 	@Test
-	public void testRemoteDirectoryCreation() throws SSHException, IOException {
-		ConnectionParameters params = buildConnectionParameters();
-		try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+	public void testRemoteDirectoryCreation() throws Exception {
+		final ConnectionParameters params = buildConnectionParameters();
+		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
 			connection.connect();
-			int startingWorkingDirFileCount = (int) Files.list(Paths.get("")).count();
+			final int startingWorkingDirFileCount = (int) Files.list(Paths.get("")).count();
 			connection.mkdir("testdir");
-			int finalWorkingDirFileCount = (int) Files.list(Paths.get("")).count();
+			final int finalWorkingDirFileCount = (int) Files.list(Paths.get("")).count();
 			// We add two to the working dir file count because the directory listing contains entries for '.' and '..'
 			Assert.assertThat("Incorrect file count in working directory", finalWorkingDirFileCount,
 					is(startingWorkingDirFileCount + 1));
@@ -86,11 +86,11 @@ public class TestSftp {
 	}
 
 	@Test
-	public void testObtainWorkingDirectory() throws IOException, SSHException {
-		ConnectionParameters params = buildConnectionParameters();
-		try (Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+	public void testObtainWorkingDirectory() throws Exception {
+		final ConnectionParameters params = buildConnectionParameters();
+		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
 			connection.connect();
-			String workingDirectory = connection.pwd();
+			final String workingDirectory = connection.pwd();
 			Assert.assertThat("Unexpected working directory", workingDirectory, is(Paths.get("").toAbsolutePath().toString()));
 		}
 	}
@@ -102,9 +102,10 @@ public class TestSftp {
 	 * @return ConnectionParameters Object that can be used to build a Connection to the test SSH server.
 	 */
 	private ConnectionParameters buildConnectionParameters() {
-		Authentication authentication = AuthenticationFactory.INSTANCE.authenticationFor(SshServerTests.USERNAME,
-				SshServerTests.PASSWORD);
-		ConnectionParameters.Builder builder = new ConnectionParameters.Builder(SshServerTests.HOST, authentication, SshServerTests.PORT);
+		final Authentication authentication = AuthenticationFactory.INSTANCE.authenticationFor(SshServerTests.USERNAME,
+																																													 SshServerTests.PASSWORD);
+		final ConnectionParameters.Builder builder = new ConnectionParameters.Builder(SshServerTests.HOST, authentication,
+																																									SshServerTests.PORT);
 		return builder.build();
 	}
 }

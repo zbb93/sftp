@@ -15,7 +15,7 @@ import java.util.*;
 class JschRemoteSession extends AbstractRemoteSession {
 	// JSch has a static configuration map that is shared amongst all instances of JSch objects.
 	static {
-		Hashtable<String, String> config = new Hashtable<>();
+		final Hashtable<String, String> config = new Hashtable<>(1);
 		// TODO ZB this should be configurable
 		config.put("StrictHostKeyChecking", "no");
 		JSch.setConfig(config);
@@ -25,7 +25,7 @@ class JschRemoteSession extends AbstractRemoteSession {
 	 * JSch Session Object. Best thought of as an SSH connection that we can use to obtain an SFTP channel. Before using
 	 * ensure that the Session is still connected.
 	 */
-	protected final @NotNull Session session;
+	private final @NotNull Session session;
 
 	/**
 	 * Provided to JSch Session to obtain an SFTP channel.
@@ -39,12 +39,14 @@ class JschRemoteSession extends AbstractRemoteSession {
 	 * @param authentication Authentication implementation to use to authenticate with the SSH server.
 	 * @throws SSHException if the host cannot be resolved.
 	 */
-	JschRemoteSession(final @NotNull String host, final int port, final int timeout, final @NotNull Authentication authentication) throws SSHException {
+	JschRemoteSession(final @NotNull String host, final int port, final int timeout,
+										final @NotNull Authentication authentication) throws SSHException {
 		super(host, port, timeout, authentication);
-		JSch jsch = new JSch();
+		final JSch jsch = new JSch();
+		final String username = authentication.getUser();
 		try {
-			session = jsch.getSession(authentication.getUser(), host, port);
-		} catch (JSchException e) {
+			session = jsch.getSession(username, host, port);
+		} catch (final JSchException e) {
 			throw new SSHException(e);
 		}
 	}
@@ -57,12 +59,12 @@ class JschRemoteSession extends AbstractRemoteSession {
 	 */
 	@Override
 	public void connect() throws SSHException {
-		Authentication auth = getAuthentication();
+		final Authentication auth = getAuthentication();
 		auth.authenticate(this);
-		int timeout = getTimeout();
+		final int timeout = getTimeout();
 		try {
 			session.connect(1000 * timeout);
-		} catch (JSchException e) {
+		} catch (final JSchException e) {
 			throw new SSHException(e);
 		}
 	}
@@ -75,15 +77,16 @@ class JschRemoteSession extends AbstractRemoteSession {
 	@Override
 	public Channel getChannel() throws SSHException {
 		try {
-			return new JschSftpChannel((ChannelSftp) session.openChannel(SFTP_CHANNEL));
-		} catch (JSchException e) {
+			final ChannelSftp channel = (ChannelSftp) session.openChannel(SFTP_CHANNEL);
+			return new JschSftpChannel(channel);
+		} catch (final JSchException e) {
 			throw new SSHException(e);
 		}
 	}
 
 	@Override
 	// TODO ZB passwords should always live in byte arrays
-	public void setPassword(String password) {
+	public void setPassword(final String password) {
 		session.setPassword(password);
 	}
 

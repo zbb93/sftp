@@ -3,11 +3,11 @@ package com.github.zbb93.sftp.session.auth;
 import org.jetbrains.annotations.*;
 
 /**
- * Creates an AbstractAuthentication object using the provided parameters. Currently only username / password is the only
- * supported authentication option. This class cannot be instantiated directly and should be accessed through the static
- * INSTANCE object.
+ * Creates an AbstractAuthentication object using the provided parameters. Currently only username / password is the
+ * only supported authentication option. This class cannot be instantiated directly and should be accessed through
+ * the static INSTANCE object.
  */
-public class AuthenticationFactory {
+public final class AuthenticationFactory {
 	/**
 	 * Static instance of the AuthenticationFactory.
 	 */
@@ -27,8 +27,7 @@ public class AuthenticationFactory {
 	 * @return Authentication object that will configure a RemoteSession to connect with the provided username and
 	 * password.
 	 */
-	@NotNull
-	public Authentication authenticationFor(final @NotNull String username, final @NotNull String password) {
+	public @NotNull Authentication authenticationFor(final @NotNull String username, final @NotNull String password) {
 		return new PasswordAuthentication(username, password);
 	}
 }

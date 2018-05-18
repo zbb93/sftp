@@ -5,11 +5,11 @@ import org.jetbrains.annotations.*;
 /**
  * Constructs implementations of the Connection Interface.
  */
-public class ConnectionFactory {
+public final class ConnectionFactory {
 	/**
 	 * Global singleton.
 	 */
-	public static @NotNull ConnectionFactory INSTANCE = new ConnectionFactory();
+	public static final @NotNull ConnectionFactory INSTANCE = new ConnectionFactory();
 
 	/**
 	 * This object should not be instantiated directly. Use the singleton instead.
