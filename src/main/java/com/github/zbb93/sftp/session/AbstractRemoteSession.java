@@ -1,11 +1,12 @@
 package com.github.zbb93.sftp.session;
 
-import com.github.zbb93.sftp.session.auth.*;
-import org.jetbrains.annotations.*;
+import com.github.zbb93.sftp.session.auth.Authentication;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Contains logic common to all RemoteSession Object.
  */
+@SuppressWarnings("ClassWithoutLogger") // no need for a logger here yet.
 abstract class AbstractRemoteSession implements RemoteSession {
 	/**
 	 * URL of the remote server.
@@ -26,6 +27,7 @@ abstract class AbstractRemoteSession implements RemoteSession {
 	 * Configures authentication to the remote server for the RemoteSession.
 	 */
 	private final @NotNull Authentication authentication;
+
 
 	/**
 	 * @param host URL of the SSH server to connect to.
@@ -49,6 +51,10 @@ abstract class AbstractRemoteSession implements RemoteSession {
 	@Override
 	public int getTimeout() {
 		return timeout;
+	}
+
+	@NotNull String getHost() {
+		return host;
 	}
 
 	/**

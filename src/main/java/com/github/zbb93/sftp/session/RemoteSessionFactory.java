@@ -1,8 +1,11 @@
 package com.github.zbb93.sftp.session;
 
-import com.github.zbb93.sftp.connection.*;
+import com.github.zbb93.sftp.connection.ConnectionParameters;
+import com.github.zbb93.sftp.connection.SSHException;
 import com.github.zbb93.sftp.session.auth.Authentication;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.logging.Logger;
 
 /**
  * Responsible for selecting the correct RemoteSession implementation to instantiate based on the provided
@@ -14,6 +17,8 @@ public final class RemoteSessionFactory {
 	 * Singleton instance that should be used instead of local instances.
 	 */
 	public static final RemoteSessionFactory INSTANCE = new RemoteSessionFactory();
+
+	private static final Logger LOGGER = Logger.getLogger(RemoteSessionFactory.class.getName());
 
 	/**
 	 * RemoteSessionFactory should not be instantiated directly.
@@ -33,6 +38,8 @@ public final class RemoteSessionFactory {
 		final int port = connectionParameters.getPort();
 		final int timeout = connectionParameters.getTimeout();
 		final Authentication authentication = connectionParameters.getAuthentication();
+		final String user = authentication.getUser();
+		LOGGER.info(String.format("Created JschRemoteSession object for %s@%s", user, host));
 		return new JschRemoteSession(host, port, timeout, authentication);
 	}
 }

@@ -1,13 +1,17 @@
 package com.github.zbb93.sftp.session;
 
-import com.github.zbb93.sftp.connection.*;
-import com.github.zbb93.sftp.session.auth.*;
+import com.github.zbb93.sftp.connection.SSHException;
+import com.github.zbb93.sftp.session.auth.Authentication;
 import com.github.zbb93.sftp.session.channel.Channel;
-import com.github.zbb93.sftp.session.channel.*;
-import com.jcraft.jsch.*;
-import org.jetbrains.annotations.*;
+import com.github.zbb93.sftp.session.channel.JschSftpChannel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Hashtable;
+import java.util.logging.Logger;
 
 /**
  * This implementation of RemoteSession utilizes the JSch library to connect to an SSH server.
@@ -31,6 +35,8 @@ class JschRemoteSession extends AbstractRemoteSession {
 	 * Provided to JSch Session to obtain an SFTP channel.
 	 */
 	private static final @NotNull String SFTP_CHANNEL = "sftp";
+
+	private static final @NotNull Logger LOGGER = Logger.getLogger(JschRemoteSession.class.getName());
 
 	/**
 	 * @param host URL of the SSH server to connect to.
@@ -60,15 +66,21 @@ class JschRemoteSession extends AbstractRemoteSession {
 	@Override
 	public void connect() throws SSHException {
 		final Authentication auth = getAuthentication();
+		final String user = auth.getUser();
+		final String host = getHost();
+		LOGGER.info(String.format("Delegating session creation for %s@%s to JSch...", user, host));
 		auth.authenticate(this);
 		final int timeout = getTimeout();
 		try {
 			session.connect(1000 * timeout);
+			LOGGER.info("Session created succesfully.");
 		} catch (final JSchException e) {
 			throw new SSHException(e);
 		}
 	}
 
+	// Currently only called from one site and additonal logging would be redundant.
+	@SuppressWarnings("PublicMethodWithoutLogging")
 	@Override
 	public boolean isConnected() {
 		return session.isConnected();
@@ -76,10 +88,13 @@ class JschRemoteSession extends AbstractRemoteSession {
 
 	@Override
 	public Channel getChannel() throws SSHException {
+		LOGGER.info("Obtaining Channel from JSch...");
 		try {
 			final ChannelSftp channel = (ChannelSftp) session.openChannel(SFTP_CHANNEL);
+			LOGGER.info("Successfully obtained Channel from JSch");
 			return new JschSftpChannel(channel);
 		} catch (final JSchException e) {
+			LOGGER.severe("An error has occurred while attempting to obtain a channel: " + e.getMessage());
 			throw new SSHException(e);
 		}
 	}
@@ -88,6 +103,7 @@ class JschRemoteSession extends AbstractRemoteSession {
 	// TODO ZB passwords should always live in byte arrays
 	public void setPassword(final String password) {
 		session.setPassword(password);
+		LOGGER.info("Password for remote session has been set.");
 	}
 
 	/**
@@ -95,6 +111,8 @@ class JschRemoteSession extends AbstractRemoteSession {
 	 */
 	@Override
 	public void close() {
+		LOGGER.info("Closing session...");
 		session.disconnect();
+		LOGGER.info("Session closed.");
 	}
 }
