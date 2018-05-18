@@ -1,12 +1,13 @@
 package com.github.zbb93.sftp.session.auth;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Creates an AbstractAuthentication object using the provided parameters. Currently only username / password is the
  * only supported authentication option. This class cannot be instantiated directly and should be accessed through
  * the static INSTANCE object.
  */
+@SuppressWarnings("ClassWithoutLogger")
 public final class AuthenticationFactory {
 	/**
 	 * Static instance of the AuthenticationFactory.

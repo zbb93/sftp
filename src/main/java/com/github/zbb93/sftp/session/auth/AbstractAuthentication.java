@@ -1,10 +1,11 @@
 package com.github.zbb93.sftp.session.auth;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Contains logic common to all implementations of the Authentication Interface.
  */
+@SuppressWarnings("ClassWithoutLogger")
 abstract class AbstractAuthentication implements Authentication {
 
 	/**

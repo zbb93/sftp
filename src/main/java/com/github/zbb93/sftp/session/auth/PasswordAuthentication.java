@@ -1,11 +1,12 @@
 package com.github.zbb93.sftp.session.auth;
 
-import com.github.zbb93.sftp.session.*;
-import org.jetbrains.annotations.*;
+import com.github.zbb93.sftp.session.RemoteSession;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Adds a password to a RemoteSession Object that will be used to Authenticate with a remote server.
  */
+@SuppressWarnings("ClassWithoutLogger")
 class PasswordAuthentication extends AbstractAuthentication {
 	private final @NotNull String password;
 

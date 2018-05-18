@@ -126,7 +126,7 @@ class SftpConnection implements Connection {
 
 	@Override
 	public @NotNull String pwd() throws SSHException, InterruptedException {
-		LOGGER.info("Obtaining current directory.");
+		LOGGER.info("Obtaining working directory.");
 		final Channel channel = getNextAvailableChannel();
 		final String workingDirectory = channel.pwd();
 		LOGGER.info("Working directory is " + workingDirectory);
