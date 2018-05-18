@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import java.io.IOException;
-import java.util.logging.ConsoleHandler;
+import java.util.Collection;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,9 +72,8 @@ public final class SshServerTests {
 	private static void configureLogger() {
 		final Logger globalLogger = Logger.getLogger("");
 		globalLogger.setLevel(Level.FINEST);
-		final Handler handler = new ConsoleHandler();
-		handler.setLevel(Level.FINEST);
-		globalLogger.addHandler(handler);
+		final Collection<Handler> handlers = Lists.newArrayList(globalLogger.getHandlers());
+		handlers.forEach(handler -> handler.setLevel(Level.FINEST));
 	}
 	/**
 	 * Shuts down the SFTP server used for testing.
