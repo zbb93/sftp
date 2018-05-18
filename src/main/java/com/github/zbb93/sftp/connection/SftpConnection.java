@@ -93,6 +93,7 @@ class SftpConnection implements Connection {
 		LOGGER.info("Obtaining directory listing for directory: " + path);
 		final Channel channel = getNextAvailableChannel();
 		final Collection<String> listing = channel.ls(path);
+		channels.add(channel);
 		LOGGER.info("Successfully obtained directory listing.");
 		return listing;
 	}
@@ -104,6 +105,7 @@ class SftpConnection implements Connection {
 															destination));
 		final Channel channel = getNextAvailableChannel();
 		channel.put(source, destination);
+		channels.add(channel);
 		LOGGER.info("File uploaded successfully.");
 	}
 
@@ -113,6 +115,7 @@ class SftpConnection implements Connection {
 		LOGGER.info("Initializing download of file " + source);
 		final Channel channel = getNextAvailableChannel();
 		channel.get(source, outputStream);
+		channels.add(channel);
 		LOGGER.info("Download initialized successfully.");
 	}
 
@@ -121,6 +124,7 @@ class SftpConnection implements Connection {
 		LOGGER.info("Creating directory " + name);
 		final Channel channel = getNextAvailableChannel();
 		channel.mkdir(name);
+		channels.add(channel);
 		LOGGER.info("Directory created successfully.");
 	}
 
@@ -129,6 +133,7 @@ class SftpConnection implements Connection {
 		LOGGER.info("Obtaining working directory.");
 		final Channel channel = getNextAvailableChannel();
 		final String workingDirectory = channel.pwd();
+		channels.add(channel);
 		LOGGER.info("Working directory is " + workingDirectory);
 		return workingDirectory;
 	}
