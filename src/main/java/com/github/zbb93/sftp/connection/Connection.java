@@ -64,6 +64,13 @@ public interface Connection extends AutoCloseable {
 	 */
 	@NotNull String pwd() throws SSHException, InterruptedException;
 
+	/**
+	 *
+	 * @param targetDirectory
+	 * @throws SSHException
+	 */
+	void cd(final @NotNull String targetDirectory) throws SSHException, InterruptedException;
+
 	@Override
 	void close() throws SSHException;
 }

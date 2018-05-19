@@ -32,9 +32,11 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractChannelPool implements ChannelPool {
 	private final @NotNull BlockingQueue<Channel> channelPool;
+	private @NotNull String workingDirectory;
 
 	private static final @NotNull Logger LOGGER = Logger.getLogger(AbstractChannelPool.class.getName());
 	private static final byte NULL_BYTE = (byte) '\0';
+	private static final char UNIX_FILE_SEPARATOR = '/';
 
 	AbstractChannelPool(final int poolSize) throws SSHException{
 		channelPool = Queues.newLinkedBlockingQueue(poolSize);
@@ -44,26 +46,30 @@ public abstract class AbstractChannelPool implements ChannelPool {
 	public void initialize() throws SSHException {
 		LOGGER.info("Initializing connection pool...");
 		connect();
-		initializePool();
+		initializeChannels();
 		LOGGER.info("Connection pool initialized successfully.");
 	}
 
 	abstract void connect() throws SSHException;
 
-	private void initializePool() throws SSHException {
+	private void initializeChannels() throws SSHException {
+		Channel channel = getChannel();
+		workingDirectory = channel.pwd();
 		do {
-			final Channel channel = getChannel();
 			channelPool.add(channel);
+			channel = getChannel();
 		} while (channelPool.remainingCapacity() > 0);
 	}
 
 	abstract Channel getChannel() throws SSHException;
 
 	@Override
-	public @NotNull Channel getNextAvailableChannel() throws InterruptedException {
+	public @NotNull Channel getNextAvailableChannel() throws SSHException, InterruptedException {
 		LOGGER.info("Waiting on next available channel...");
 		// TODO add timeout option for time to wait for channel
 		final Channel channel = channelPool.take();
+		// TODO track working directory on the Channel and update when it is returned if it does not match channel pool.
+		channel.cd(workingDirectory);
 		LOGGER.info("Successfully obtained channel.");
 		return channel;
 	}
@@ -71,6 +77,27 @@ public abstract class AbstractChannelPool implements ChannelPool {
 	@Override
 	public void returnChannel(final @NotNull Channel channel) {
 		channelPool.add(channel);
+	}
+
+	@Override
+	public void setWorkingDirectory(final @NotNull String targetDirectory) {
+		if (isAbsolute(targetDirectory)) {
+			workingDirectory = targetDirectory;
+		} else {
+			if (!workingDirectory.endsWith(String.valueOf(UNIX_FILE_SEPARATOR))) {
+				workingDirectory += UNIX_FILE_SEPARATOR;
+			}
+			workingDirectory += targetDirectory;
+		}
+	}
+
+	@Override
+	public String getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	private boolean isAbsolute(final @NotNull CharSequence targetDirectory) {
+		return targetDirectory.charAt(0) == UNIX_FILE_SEPARATOR;
 	}
 	/**
 	 * Disconnects all channels in the channel pool.

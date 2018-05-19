@@ -41,5 +41,9 @@ public interface ChannelPool extends AutoCloseable {
 
 	void returnChannel(final @NotNull Channel channel);
 
+	void setWorkingDirectory(final @NotNull String targetDirectory);
+
+	String getWorkingDirectory();
+
 	void close() throws SSHException;
 }

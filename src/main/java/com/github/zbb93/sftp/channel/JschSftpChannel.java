@@ -119,6 +119,17 @@ public class JschSftpChannel implements Channel {
 	}
 
 	@Override
+	public void cd(final @NotNull String targetDirectory) throws SSHException {
+		LOGGER.info("Changing directory to " + targetDirectory);
+		try {
+			channel.cd(targetDirectory);
+		} catch (final SftpException e) {
+			LOGGER.severe("Error occurred while attempting to change directories: " + e.getMessage());
+			throw new SSHException(e);
+		}
+	}
+
+	@Override
 	public void close() {
 		LOGGER.info("Closing JSch ChannelSftp...");
 		channel.disconnect();

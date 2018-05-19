@@ -95,6 +95,16 @@ public class TestSftp {
 		}
 	}
 
+	@Test
+	public void testChangeDirectory() throws Exception {
+		final ConnectionParameters params = buildConnectionParameters();
+		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
+			connection.cd("/");
+			String workingDirectory = connection.pwd();
+			Assert.assertThat("Failed to change directory", workingDirectory, is("/"));
+		}
+	}
+
 	/**
 	 * Constructs a ConnectionParameters object to be used to connect to the test SSH server. The Host and Port are
 	 * configured in the ConnectionTest Suite and the Authentication is provided by the calling method.

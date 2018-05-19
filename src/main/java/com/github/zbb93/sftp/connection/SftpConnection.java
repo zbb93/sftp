@@ -81,17 +81,11 @@ class SftpConnection implements Connection {
 		return workingDirectory;
 	}
 
-	/**
-	 * Obtains the next available channel from the channel queue. If no channels are available the method blocks until
-	 * a channel is available.
-	 *
-	 * @return channel from the channel queue.
-	 * @throws InterruptedException if interrupted while waiting for an available channel.
-	 */
-	private @NotNull Channel getNextAvailableChannel() throws InterruptedException {
-		Preconditions.checkState(!channels.isEmpty(),
-														 "Connection#connect should be invoked before invoking other methods.");
-		return channels.take();
+	@Override
+	public void cd(final @NotNull String targetDirectory) {
+		LOGGER.info("Setting working directory for future operations to " + targetDirectory);
+		channelPool.setWorkingDirectory(targetDirectory);
+		LOGGER.info("Working directory successfully changed to " + channelPool.getWorkingDirectory());
 	}
 
 	/**

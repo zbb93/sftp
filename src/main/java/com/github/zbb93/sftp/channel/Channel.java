@@ -35,6 +35,7 @@ public interface Channel extends AutoCloseable{
 	void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException;
 	void mkdir(final @NotNull String path) throws SSHException;
 	String pwd() throws SSHException;
+	void cd(final @NotNull String targetDirectory) throws SSHException;
 	@Override
 	void close() throws SSHException;
 }

@@ -95,7 +95,8 @@ class JschChannelPool extends AbstractChannelPool {
 	 * Disconnects the JSch channel from the SSH server
 	 */
 	@Override
-	public void close() {
+	public void close() throws SSHException {
+		super.close();
 		LOGGER.info("Closing channel...");
 		session.disconnect();
 		LOGGER.info("Session closed.");
