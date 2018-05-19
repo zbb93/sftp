@@ -1,9 +1,6 @@
-package com.github.zbb93.sftp.session;
+package com.github.zbb93.sftp.channel;
 
 import com.github.zbb93.sftp.connection.SSHException;
-import com.github.zbb93.sftp.session.auth.Authentication;
-import com.github.zbb93.sftp.session.channel.Channel;
-import com.github.zbb93.sftp.session.channel.JschSftpChannel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -13,10 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
-/**
- * This implementation of RemoteSession utilizes the JSch library to connect to an SSH server.
- */
-class JschRemoteSession extends AbstractRemoteSession {
+class JschChannelPool extends AbstractChannelPool {
 	// JSch has a static configuration map that is shared amongst all instances of JSch objects.
 	static {
 		final Hashtable<String, String> config = new Hashtable<>(1);
@@ -36,25 +30,32 @@ class JschRemoteSession extends AbstractRemoteSession {
 	 */
 	private static final @NotNull String SFTP_CHANNEL = "sftp";
 
-	private static final @NotNull Logger LOGGER = Logger.getLogger(JschRemoteSession.class.getName());
+	private static final @NotNull Logger LOGGER = Logger.getLogger(JschChannelPool.class.getName());
 
-	/**
-	 * @param host URL of the SSH server to connect to.
-	 * @param port port that the SSH server is listening on.
-	 * @param timeout amount of time (in seconds) that a connection attempt is allowed to take.
-	 * @param authentication Authentication implementation to use to authenticate with the SSH server.
-	 * @throws SSHException if the host cannot be resolved.
-	 */
-	JschRemoteSession(final @NotNull String host, final int port, final int timeout,
-										final @NotNull Authentication authentication) throws SSHException {
-		super(host, port, timeout, authentication);
+	JschChannelPool(final @NotNull String host, final @NotNull String user, final byte[] password, final int port,
+									final int timeout, final int poolSize) throws SSHException {
+		super(poolSize);
+		session = buildJschSession(host, user, password, port, timeout);
+	}
+
+	private Session buildJschSession(final @NotNull String host, final @NotNull String user, final byte[] password,
+																	 final int port, final int timeout)
+			throws SSHException {
 		final JSch jsch = new JSch();
-		final String username = authentication.getUser();
 		try {
-			session = jsch.getSession(username, host, port);
+			final Session session = jsch.getSession(user, host, port);
+			session.setTimeout(timeout);
+			setPassword(session, password);
+			return session;
 		} catch (final JSchException e) {
+			LOGGER.severe("Unable to establish connection: " + e.getMessage());
 			throw new SSHException(e);
 		}
+	}
+
+	private void setPassword(final @NotNull Session session, final @NotNull byte[] password) {
+		session.setPassword(password);
+		clearByteArray(password);
 	}
 
 	/**
@@ -65,25 +66,15 @@ class JschRemoteSession extends AbstractRemoteSession {
 	 */
 	@Override
 	public void connect() throws SSHException {
-		final Authentication auth = getAuthentication();
-		final String user = auth.getUser();
-		final String host = getHost();
-		LOGGER.info(String.format("Delegating session creation for %s@%s to JSch...", user, host));
-		auth.authenticate(this);
-		final int timeout = getTimeout();
+		final String user = session.getUserName();
+		final String host = session.getHost();
+		LOGGER.info(String.format("Delegating channel creation for %s@%s to JSch...", user, host));
 		try {
-			session.connect(1000 * timeout);
+			session.connect();
 			LOGGER.info("Session created succesfully.");
 		} catch (final JSchException e) {
 			throw new SSHException(e);
 		}
-	}
-
-	// Currently only called from one site and additonal logging would be redundant.
-	@SuppressWarnings("PublicMethodWithoutLogging")
-	@Override
-	public boolean isConnected() {
-		return session.isConnected();
 	}
 
 	@Override
@@ -91,6 +82,7 @@ class JschRemoteSession extends AbstractRemoteSession {
 		LOGGER.info("Obtaining Channel from JSch...");
 		try {
 			final ChannelSftp channel = (ChannelSftp) session.openChannel(SFTP_CHANNEL);
+			channel.connect();
 			LOGGER.info("Successfully obtained Channel from JSch");
 			return new JschSftpChannel(channel);
 		} catch (final JSchException e) {
@@ -99,19 +91,12 @@ class JschRemoteSession extends AbstractRemoteSession {
 		}
 	}
 
-	@Override
-	// TODO ZB passwords should always live in byte arrays
-	public void setPassword(final String password) {
-		session.setPassword(password);
-		LOGGER.info("Password for remote session has been set.");
-	}
-
 	/**
-	 * Disconnects the JSch session from the SSH server
+	 * Disconnects the JSch channel from the SSH server
 	 */
 	@Override
 	public void close() {
-		LOGGER.info("Closing session...");
+		LOGGER.info("Closing channel...");
 		session.disconnect();
 		LOGGER.info("Session closed.");
 	}

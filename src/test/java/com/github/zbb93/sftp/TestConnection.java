@@ -4,8 +4,6 @@ import com.github.zbb93.sftp.connection.Connection;
 import com.github.zbb93.sftp.connection.ConnectionFactory;
 import com.github.zbb93.sftp.connection.ConnectionParameters;
 import com.github.zbb93.sftp.connection.SSHException;
-import com.github.zbb93.sftp.session.auth.Authentication;
-import com.github.zbb93.sftp.session.auth.AuthenticationFactory;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.future.AuthFuture;
 import org.apache.sshd.client.future.ConnectFuture;
@@ -38,24 +36,10 @@ public class TestConnection {
 		final ConnectFuture connectFuture = client.connect(SshServerTests.USERNAME, SshServerTests.HOST, SshServerTests.PORT);
 		final ConnectFuture future = connectFuture.verify(connectionTimeoutMs);
 		try (final ClientSession session = future.getSession()) {
-			session.addPasswordIdentity(SshServerTests.PASSWORD);
+			session.addPasswordIdentity(new String(SshServerTests.PASSWORD));
 			final AuthFuture authFuture = session.auth();
 			authFuture.verify(connectionTimeoutMs);
 			Assert.assertThat("Connection unsuccessful", true, is(session.isAuthenticated()));
-		}
-	}
-
-	/**
-	 * Verifies that we can connect to an SSH server using password authentication.
-	 *
-	 * @throws SSHException if an error occurs while connecting to the SSH server.
-	 */
-	@Test
-	public void testPasswordConnect() throws Exception {
-		final ConnectionParameters connectionParameters = buildPasswordConnectionParameters();
-		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters)) {
-			connection.connect();
-			Assert.assertThat("Connection unsuccessful", true, is(connection.isConnected()));
 		}
 	}
 
@@ -68,7 +52,6 @@ public class TestConnection {
 	public void testConnectionTimeout() {
 		final ConnectionParameters connectionParameters = buildPasswordConnectionParameters("10.255.255.1", 1);
 		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(connectionParameters)) {
-			connection.connect();
 			Assert.fail("Connection did not timeout.");
 		} catch (final SSHException e) {
 			Assert.assertThat("Unexpected SSHException occurred.", e.getMessage(), containsString("timeout"));
@@ -86,10 +69,8 @@ public class TestConnection {
 	}
 
 	private ConnectionParameters buildPasswordConnectionParameters(final String host, final int timeout) {
-		final Authentication passwordAuthentication = AuthenticationFactory.INSTANCE.authenticationFor(
-				SshServerTests.USERNAME, SshServerTests.PASSWORD
-		);
-		final ConnectionParameters.Builder builder = new ConnectionParameters.Builder(host, passwordAuthentication,
+		final ConnectionParameters.Builder builder = new ConnectionParameters.Builder(host, SshServerTests.USERNAME,
+																																									SshServerTests.PASSWORD,
 																																									SshServerTests.PORT);
 		builder.setTimeout(timeout);
 		return builder.build();

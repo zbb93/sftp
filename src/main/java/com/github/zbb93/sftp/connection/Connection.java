@@ -11,12 +11,6 @@ import java.util.Collection;
  * like transferring files to as well as copying, deleting, and renaming files on the remote server.
  */
 public interface Connection extends AutoCloseable {
-	/**
-	 * Establish a connection to the remote server.
-	 *
-	 * @throws SSHException if an error occurs while connecting to the remote server.
-	 */
-	void connect() throws SSHException;
 
 	/**
 	 * Obtains the directory listing of the a directory. Use '.' to list the working directory.
@@ -69,11 +63,6 @@ public interface Connection extends AutoCloseable {
 	 * @throws InterruptedException if interrupted while waiting for an available channel.
 	 */
 	@NotNull String pwd() throws SSHException, InterruptedException;
-
-	/**
-	 * @return true if this Connection is currently connected to the remote server and false otherwise.
-	 */
-	boolean isConnected();
 
 	@Override
 	void close() throws SSHException;

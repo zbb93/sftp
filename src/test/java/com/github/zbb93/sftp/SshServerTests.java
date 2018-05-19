@@ -50,7 +50,7 @@ public final class SshServerTests {
 	/**
 	 * Password used in conjunction with the above username to connect to the SSH server.
 	 */
-	static final @NotNull String PASSWORD = "test";
+	static final @NotNull byte[] PASSWORD = "test".getBytes();
 
 	/**
 	 * Configures the SFTP server to be used for testing.
@@ -59,12 +59,12 @@ public final class SshServerTests {
 	 */
 	@BeforeClass
 	public static void setUp() throws IOException {
-		configureLogger();
+//		configureLogger();
 		server.setHost(HOST);
 		server.setPort(PORT);
 		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
 		server.setPasswordAuthenticator((username, password, session) ->
-																				username.equals(USERNAME) && password.equals(PASSWORD));
+																				username.equals(USERNAME) && password.equals(new String(PASSWORD)));
 		server.setSubsystemFactories(Lists.newArrayList(new SftpSubsystemFactory()));
 		server.start();
 	}

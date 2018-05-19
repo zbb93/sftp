@@ -1,14 +1,19 @@
 package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.connection.*;
-import com.github.zbb93.sftp.session.auth.*;
-import org.junit.*;
+import com.github.zbb93.sftp.connection.Connection;
+import com.github.zbb93.sftp.connection.ConnectionFactory;
+import com.github.zbb93.sftp.connection.ConnectionParameters;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 
 public class TestSftp {
 
@@ -21,7 +26,6 @@ public class TestSftp {
 			Files.write(tmp, content);
 			final ConnectionParameters params = buildConnectionParameters();
 			try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
-				connection.connect();
 				connection.put(tmp, "test1.txt");
 				Assert.assertThat("File not transferred correctly", Files.exists(Paths.get("test1.txt")), is(true));
 			}
@@ -36,7 +40,6 @@ public class TestSftp {
 	public void testDirectoryListing() throws Exception {
 		final ConnectionParameters params = buildConnectionParameters();
 		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
-			connection.connect();
 			final Collection<String> directoryListing = connection.ls(".");
 			final int workingDirFileCount = (int) Files.list(Paths.get("")).count();
 			// We add two to the working dir file count because the directory listing contains entries for '.' and '..'
@@ -54,7 +57,6 @@ public class TestSftp {
 			Files.write(tmp, content);
 			final ConnectionParameters params = buildConnectionParameters();
 			try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
-				connection.connect();
 				connection.put(tmp, "test1.txt");
 				try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 					connection.get("test1.txt", out);
@@ -73,7 +75,6 @@ public class TestSftp {
 	public void testRemoteDirectoryCreation() throws Exception {
 		final ConnectionParameters params = buildConnectionParameters();
 		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
-			connection.connect();
 			final int startingWorkingDirFileCount = (int) Files.list(Paths.get("")).count();
 			connection.mkdir("testdir");
 			final int finalWorkingDirFileCount = (int) Files.list(Paths.get("")).count();
@@ -89,7 +90,6 @@ public class TestSftp {
 	public void testObtainWorkingDirectory() throws Exception {
 		final ConnectionParameters params = buildConnectionParameters();
 		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
-			connection.connect();
 			final String workingDirectory = connection.pwd();
 			Assert.assertThat("Unexpected working directory", workingDirectory, is(Paths.get("").toAbsolutePath().toString()));
 		}
@@ -102,10 +102,9 @@ public class TestSftp {
 	 * @return ConnectionParameters Object that can be used to build a Connection to the test SSH server.
 	 */
 	private ConnectionParameters buildConnectionParameters() {
-		final Authentication authentication = AuthenticationFactory.INSTANCE.authenticationFor(SshServerTests.USERNAME,
-																																													 SshServerTests.PASSWORD);
-		final ConnectionParameters.Builder builder = new ConnectionParameters.Builder(SshServerTests.HOST, authentication,
-																																									SshServerTests.PORT);
+		final ConnectionParameters.Builder builder = new ConnectionParameters.Builder(
+				SshServerTests.HOST, SshServerTests.USERNAME, SshServerTests.PASSWORD, SshServerTests.PORT
+		);
 		return builder.build();
 	}
 }

@@ -1,6 +1,5 @@
 package com.github.zbb93.sftp.connection;
 
-import com.github.zbb93.sftp.session.auth.Authentication;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
@@ -28,9 +27,8 @@ public final class ConnectionFactory {
 	 * @throws SSHException if the host of the ConnectionParameters cannot be resolved.
 	 */
 	public Connection getConnection(final @NotNull ConnectionParameters connectionParameters) throws SSHException {
-		final String host = connectionParameters.getUrl();
-		final Authentication authentication = connectionParameters.getAuthentication();
-		final String user = authentication.getUser();
+		final String host = connectionParameters.getHost();
+		final String user = connectionParameters.getUser();
 		LOGGER.info(String.format("Obtaining connection for %s@%s", user, host));
 		return new SftpConnection(connectionParameters);
 	}
