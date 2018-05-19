@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 class SftpConnection implements Connection {
 
 	/**
-	 * Used to open SFTP channels on the SSH server. This is the root connection to the SSH server.
+	 * Obtains Channels from the remote server.
 	 */
 	private final @NotNull ChannelPool channelPool;
 

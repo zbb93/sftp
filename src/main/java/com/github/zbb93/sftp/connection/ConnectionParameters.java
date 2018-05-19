@@ -8,14 +8,10 @@ import org.jetbrains.annotations.NotNull;
  * through the Builder class.
  */
 public final class ConnectionParameters {
-	public String getUser() {
-		return user;
-	}
 
-	public byte[] getPassword() {
-		return password;
-	}
-
+	/**
+	 * Defines available methods of authentication.
+	 */
 	public enum AuthenticationMode {
 		PASSWORD("Password");
 
@@ -32,6 +28,9 @@ public final class ConnectionParameters {
 		}
 	}
 
+	/**
+	 * Defines the available methods that a Connection can use to interact with the remote server.
+	 */
 	public enum Provider {
 		JSCH("JSch");
 
@@ -47,8 +46,14 @@ public final class ConnectionParameters {
 		}
 	}
 
+	/**
+	 * Method the Connection created from this object will use to interact with the remote server.
+	 */
 	private final @NotNull Provider provider;
 
+	/**
+	 * Default Connection provider.
+	 */
 	private static final @NotNull Provider DEFAULT_PROVIDER = Provider.JSCH;
 
 	/**
@@ -56,11 +61,21 @@ public final class ConnectionParameters {
 	 */
 	private final @NotNull String host;
 
+	/**
+	 * Username of the account to use on the remote server.
+	 */
 	private final @NotNull String user;
 
+	/**
+	 * Byte array containing the password to authenticate with.
+	 */
 	private final @NotNull byte[] password;
 
+	/**
+	 * Method of authentication.
+	 */
 	private final @NotNull AuthenticationMode authenticationMode;
+
 	/**
 	 * Port to connect to on the remote server.
 	 */
@@ -88,10 +103,10 @@ public final class ConnectionParameters {
 	private static final int DEFAULT_CHANNEL_POOL_SIZE = 10;
 
 	/**
-	 * @param provider
+	 * @param provider method the ChannelPool will use to obtain channels.
 	 * @param host the URL of the remote server.
-	 * @param user
-	 * @param password
+	 * @param user username for the remote user.
+	 * @param password password for the remote user.
 	 * @param port the port to connect to on the remote server.
 	 * @param timeout amount of time (in seconds) to wait for a response from the remote server during any operation.
 	 */
@@ -129,15 +144,38 @@ public final class ConnectionParameters {
 		return timeout;
 	}
 
+	/**
+	 * @return number of channels that will be maintained by the Connection created from these ConnectionParameters.
+	 */
 	public int getChannelPoolSize() {
 		return channelPoolSize;
 	}
 
+	/**
+	 * @return method of authentication for this connection.
+	 */
 	public AuthenticationMode getAuthenticationMode() {
 		return authenticationMode;
 	}
 
-	public Provider getProvider() {
+	/**
+	 * @return username of the remote user.
+	 */
+	public @NotNull String getUser() {
+		return user;
+	}
+
+	/**
+	 * @return password of the remote user.
+	 */
+	public @NotNull byte[] getPassword() {
+		return password;
+	}
+
+	/**
+	 * @return provider that the connection will use to interact with the remote server.
+	 */
+	public @NotNull Provider getProvider() {
 		return provider;
 	}
 
@@ -154,10 +192,19 @@ public final class ConnectionParameters {
 		 */
 		private final @NotNull String host;
 
+		/**
+		 * Method of authentication.
+		 */
 		private final @NotNull AuthenticationMode authenticationMode;
 
+		/**
+		 * Username of the account to use on the remote server.
+		 */
 		private @NotNull String user;
 
+		/**
+		 * Byte array containing the password to authenticate with.
+		 */
 		private @NotNull byte[] password;
 
 		/**
@@ -221,6 +268,9 @@ public final class ConnectionParameters {
 			this.channelPoolSize = channelPoolSize;
 		}
 
+		/**
+		 * @param provider method that will be used to interact with the remote server.
+		 */
 		public void setProvider(final @NotNull Provider provider) {
 			this.provider = provider;
 		}

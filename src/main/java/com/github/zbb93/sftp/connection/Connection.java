@@ -65,12 +65,17 @@ public interface Connection extends AutoCloseable {
 	@NotNull String pwd() throws SSHException, InterruptedException;
 
 	/**
+	 * Sets the working directory for the remote connection. Any operations in progress will not be affected.
 	 *
-	 * @param targetDirectory
-	 * @throws SSHException
+	 * @param targetDirectory the new working directory on the remote server.
 	 */
-	void cd(final @NotNull String targetDirectory) throws SSHException, InterruptedException;
+	void cd(final @NotNull String targetDirectory);
 
+	/**
+	 * Disconnects from the remote server.
+	 *
+	 * @throws SSHException if an error occurs while disconnecting from the remote server.
+	 */
 	@Override
 	void close() throws SSHException;
 }

@@ -21,6 +21,9 @@ package com.github.zbb93.sftp.channel;
 import com.github.zbb93.sftp.connection.SSHException;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Maintains a thread safe pool of channels that can be used to interact with a remote server.
+ */
 public interface ChannelPool extends AutoCloseable {
 	/**
 	 * Establishes a connection to the remote server and populates the channel pool.
@@ -39,11 +42,30 @@ public interface ChannelPool extends AutoCloseable {
 	 */
 	@NotNull Channel getNextAvailableChannel() throws SSHException, InterruptedException;
 
+	/**
+	 * Returns the provided channel to the channel pool.
+	 *
+	 * @param channel channel to return to the pool.
+	 */
 	void returnChannel(final @NotNull Channel channel);
 
+	/**
+	 * Updates the current working directory on the remote server. This will not affect any channels until the next time
+	 * they are removed from the pool.
+	 *
+	 * @param targetDirectory new working directory on remote server.
+	 */
 	void setWorkingDirectory(final @NotNull String targetDirectory);
 
+	/**
+	 * @return current working directory on the remote server.
+	 */
 	String getWorkingDirectory();
 
+	/**
+	 * Disconnects all channels in the channel pool.
+	 *
+	 * @throws SSHException if an error occurs disconnecting from the SSH server.
+	 */
 	void close() throws SSHException;
 }

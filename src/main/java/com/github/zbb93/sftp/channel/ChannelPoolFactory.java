@@ -22,11 +22,26 @@ import com.github.zbb93.sftp.connection.ConnectionParameters;
 import com.github.zbb93.sftp.connection.SSHException;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Takes a ConnectionParameters object and based on the parameters determines an implementation of ChannelPool to
+ * return.
+ */
+@SuppressWarnings("FeatureEnvy")
 public class ChannelPoolFactory {
+	/**
+	 * Global singleton that should be used to create ChannelPool objects.
+	 */
 	public static final @NotNull ChannelPoolFactory INSTANCE = new ChannelPoolFactory();
 
 	private ChannelPoolFactory() { }
 
+	/**
+	 * Creates a ChannelPool from the provided ConnectionParameters.
+	 *
+	 * @param params ConnectionParameters to build the ChannelPool with.
+	 * @return ready to use ChannelPool.
+	 * @throws SSHException if an error occurs while establishing the connection or opening channels.
+	 */
 	public ChannelPool getChannelPool(final @NotNull ConnectionParameters params) throws SSHException {
 		final ConnectionParameters.Provider provider = params.getProvider();
 		final ChannelPool pool;
@@ -39,6 +54,13 @@ public class ChannelPoolFactory {
 		return pool;
 	}
 
+	/**
+	 * Creates a ChannelPool that opens channels using JSch.
+	 *
+	 * @param params ConnectionParameters to build the ChannelPool with.
+	 * @return ready to use ChannelPool.
+	 * @throws SSHException if an error occurs while establishing the connection or opening channels.
+	 */
 	private ChannelPool getJschChannelPool(final @NotNull ConnectionParameters params) throws SSHException {
 		final String host = params.getHost();
 		final String user = params.getUser();
