@@ -31,6 +31,7 @@ import java.util.logging.Logger;
  * server. It is responsible solely for maintaining the channel pool.
  */
 public abstract class AbstractChannelPool implements ChannelPool {
+	private final int poolSize;
 	private final @NotNull BlockingQueue<Channel> channelPool;
 	private @NotNull String workingDirectory;
 
@@ -39,6 +40,7 @@ public abstract class AbstractChannelPool implements ChannelPool {
 	private static final char UNIX_FILE_SEPARATOR = '/';
 
 	AbstractChannelPool(final int poolSize) throws SSHException{
+		this.poolSize = poolSize;
 		channelPool = Queues.newLinkedBlockingQueue(poolSize);
 	}
 
@@ -118,5 +120,9 @@ public abstract class AbstractChannelPool implements ChannelPool {
 		for (byte bite : bytes) {
 			bite = NULL_BYTE;
 		}
+	}
+
+	int getPoolSize() {
+		return poolSize;
 	}
 }

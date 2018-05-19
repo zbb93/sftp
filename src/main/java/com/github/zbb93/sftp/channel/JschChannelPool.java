@@ -101,4 +101,14 @@ class JschChannelPool extends AbstractChannelPool {
 		session.disconnect();
 		LOGGER.info("Session closed.");
 	}
+
+	@Override
+	@SuppressWarnings({"MagicCharacter", "PublicMethodWithoutLogging"})
+	public String toString() {
+		return "JschChannelPool{" +
+					 "user=" + session.getUserName() + ',' +
+					 "host=" + session.getHost() + ',' +
+					 "poolSize=" + getPoolSize() +
+					 '}';
+	}
 }
