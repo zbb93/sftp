@@ -45,7 +45,7 @@ public class ConnectionTest {
 	private ConnectionFactory mockConnectionFactory() throws Exception {
 		ConnectionFactory factory = mock(ConnectionFactory.class);
 		ConnectionParameters parameters = mock(ConnectionParameters.class);
-		Connection connection = new SftpConnection(parameters, channelPoolFactory.getChannelPoolFactory());
+		Connection connection = new ConnectionImpl(parameters, channelPoolFactory.getChannelPoolFactory());
 		when(factory.getConnection(any(ConnectionParameters.class))).thenReturn(connection);
 		return factory;
 	}

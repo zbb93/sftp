@@ -49,6 +49,6 @@ public class ConnectionFactory {
 		final String host = connectionParameters.getHost();
 		final String user = connectionParameters.getUser();
 		LOGGER.info(String.format("Obtaining connection for %s@%s", user, host));
-		return new SftpConnection(connectionParameters, ChannelPoolFactory.INSTANCE);
+		return new ConnectionImpl(connectionParameters, ChannelPoolFactory.INSTANCE);
 	}
 }

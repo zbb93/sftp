@@ -29,23 +29,23 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 /**
- * SftpConnection uses the SFTP protocol to implement the operations defined by the Connection Interface.
+ * ConnectionImpl uses the SFTP protocol to implement the operations defined by the Connection Interface.
  */
-class SftpConnection implements Connection {
+class ConnectionImpl implements Connection {
 
 	/**
 	 * Obtains Channels from the remote server.
 	 */
 	private final @NotNull ChannelPool channelPool;
 
-	private static final @NotNull Logger LOGGER = Logger.getLogger(SftpConnection.class.getName());
+	private static final @NotNull Logger LOGGER = Logger.getLogger(ConnectionImpl.class.getName());
 
 	/**
 	 * @param connectionParameters contains parameters required to connect to SSH server.
-	 * @param channelPoolFactory
+	 * @param channelPoolFactory instance of the ChannelPoolFactory. Builds the ChannelPool.
 	 * @throws SSHException if the host obtained from the ConnectionProviders cannot be resolved
 	 */
-	SftpConnection(final @NotNull ConnectionParameters connectionParameters,
+	ConnectionImpl(final @NotNull ConnectionParameters connectionParameters,
 								 final ChannelPoolFactory channelPoolFactory) throws SSHException {
 		channelPool = channelPoolFactory.getChannelPool(connectionParameters);
 	}
