@@ -42,10 +42,12 @@ class SftpConnection implements Connection {
 
 	/**
 	 * @param connectionParameters contains parameters required to connect to SSH server.
+	 * @param channelPoolFactory
 	 * @throws SSHException if the host obtained from the ConnectionProviders cannot be resolved
 	 */
-	SftpConnection(final @NotNull ConnectionParameters connectionParameters) throws SSHException {
-		channelPool = ChannelPoolFactory.INSTANCE.getChannelPool(connectionParameters);
+	SftpConnection(final @NotNull ConnectionParameters connectionParameters,
+								 final ChannelPoolFactory channelPoolFactory) throws SSHException {
+		channelPool = channelPoolFactory.getChannelPool(connectionParameters);
 	}
 
 	@Override
@@ -53,7 +55,7 @@ class SftpConnection implements Connection {
 		LOGGER.info("Obtaining directory listing for directory: " + path);
 		final Channel channel = channelPool.getNextAvailableChannel();
 		final Collection<String> listing = channel.ls(path);
-		channelPool.returnChannel(channel);
+		returnChannel(channel);
 		LOGGER.info("Successfully obtained directory listing.");
 		return listing;
 	}
@@ -65,7 +67,7 @@ class SftpConnection implements Connection {
 															destination));
 		final Channel channel = channelPool.getNextAvailableChannel();
 		channel.put(source, destination);
-		channelPool.returnChannel(channel);
+		returnChannel(channel);
 		LOGGER.info("File uploaded successfully.");
 	}
 
@@ -75,7 +77,7 @@ class SftpConnection implements Connection {
 		LOGGER.info("Initializing download of file " + source);
 		final Channel channel = channelPool.getNextAvailableChannel();
 		channel.get(source, outputStream);
-		channelPool.returnChannel(channel);
+		returnChannel(channel);
 		LOGGER.info("Download initialized successfully.");
 	}
 
@@ -84,16 +86,14 @@ class SftpConnection implements Connection {
 		LOGGER.info("Creating directory " + name);
 		final Channel channel = channelPool.getNextAvailableChannel();
 		channel.mkdir(name);
-		channelPool.returnChannel(channel);
+		returnChannel(channel);
 		LOGGER.info("Directory created successfully.");
 	}
 
 	@Override
-	public @NotNull String pwd() throws SSHException, InterruptedException {
+	public @NotNull String pwd() {
 		LOGGER.info("Obtaining working directory.");
-		final Channel channel = channelPool.getNextAvailableChannel();
-		final String workingDirectory = channel.pwd();
-		channelPool.returnChannel(channel);
+		final String workingDirectory = channelPool.getWorkingDirectory();
 		LOGGER.info("Working directory is " + workingDirectory);
 		return workingDirectory;
 	}
@@ -105,6 +105,9 @@ class SftpConnection implements Connection {
 		LOGGER.info("Working directory successfully changed to " + channelPool.getWorkingDirectory());
 	}
 
+	private void returnChannel(final @NotNull Channel channel) {
+		channelPool.returnChannel(channel);
+	}
 	/**
 	 * Disconnects the RemoteSession from the SSH server.
 	 * @throws IOException if an error occurs disconnecting from the SSH server.

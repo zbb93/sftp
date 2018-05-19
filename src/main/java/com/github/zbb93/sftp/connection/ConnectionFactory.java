@@ -17,6 +17,7 @@
  */
 package com.github.zbb93.sftp.connection;
 
+import com.github.zbb93.sftp.channel.ChannelPoolFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
@@ -24,7 +25,8 @@ import java.util.logging.Logger;
 /**
  * Constructs implementations of the Connection Interface.
  */
-public final class ConnectionFactory {
+@SuppressWarnings("ClassWithOnlyPrivateConstructors") // Mockito cannot mock final classes.
+public class ConnectionFactory {
 	/**
 	 * Global singleton.
 	 */
@@ -47,6 +49,6 @@ public final class ConnectionFactory {
 		final String host = connectionParameters.getHost();
 		final String user = connectionParameters.getUser();
 		LOGGER.info(String.format("Obtaining connection for %s@%s", user, host));
-		return new SftpConnection(connectionParameters);
+		return new SftpConnection(connectionParameters, ChannelPoolFactory.INSTANCE);
 	}
 }

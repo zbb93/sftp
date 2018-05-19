@@ -76,10 +76,8 @@ public interface Connection extends AutoCloseable {
 
 	/**
 	 * @return absolute path of the working directory on the remote server.
-	 * @throws SSHException if an error occurs while obtaining the working directory.
-	 * @throws InterruptedException if interrupted while waiting for an available channel.
 	 */
-	@NotNull String pwd() throws SSHException, InterruptedException;
+	@NotNull String pwd();
 
 	/**
 	 * Sets the working directory for the remote connection. Any operations in progress will not be affected.

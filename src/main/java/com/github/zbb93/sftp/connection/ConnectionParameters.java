@@ -24,7 +24,8 @@ import org.jetbrains.annotations.NotNull;
  * Contains parameters that are used to obtain a connection to the remote server. This class should be instantiated
  * through the Builder class.
  */
-public final class ConnectionParameters {
+@SuppressWarnings("ClassWithOnlyPrivateConstructors") // Mockito can't mock final classes.
+public class ConnectionParameters {
 
 	/**
 	 * Defines available methods of authentication.
