@@ -18,13 +18,13 @@
 
 package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.connection.ConnectionTest;
+import com.github.zbb93.sftp.connection.ChannelReturnTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-		ConnectionTest.class,
+		ChannelReturnTest.class,
 		SshServerIT.class
 })
 public class Runner { }

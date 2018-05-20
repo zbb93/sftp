@@ -239,8 +239,7 @@ public final class SshServerIT {
 	}
 
 	/**
-	 * Constructs a ConnectionParameters object to be used to connect to the test SSH server. The Host and Port are
-	 * configured in the ConnectionTest Suite and the Authentication is provided by the calling method.
+	 * Constructs a ConnectionParameters object to be used to connect to the test SSH server.
 	 *
 	 * @return ConnectionParameters Object that can be used to build a Connection to the test SSH server.
 	 */

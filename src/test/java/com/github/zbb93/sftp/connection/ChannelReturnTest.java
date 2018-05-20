@@ -21,20 +21,46 @@ package com.github.zbb93.sftp.connection;
 import com.github.zbb93.sftp.channel.Channel;
 import com.github.zbb93.sftp.channel.ChannelPool;
 import com.github.zbb93.sftp.channel.ChannelPoolFactory;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Method;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class ConnectionTest {
+/**
+ * These tests ensure that the methods defined in the Connection interface that take a Channel from the ChannelPool
+ * return the Channel. This is accomplished by mocking the ChannelPool and verifying that the ChannelPool#returnChannel
+ * method was invoked.
+ *
+ * All methods in this class that are testing a Connection method should be named testMethodname where Methodname
+ * is the name of the method being tested. There is a test that verifies all methods are tested using reflection and
+ * a regular expression. If a method does not utilize a Channel from the ChannelPool it should be added to the
+ * EXCLUDED_METHODS Set.
+ */
+public class ChannelReturnTest {
 
 	private ConnectionFactory factory;
 	private MockChannelPoolFactory channelPoolFactory;
+
+	private static final @NotNull Set<String> EXCLUDED_METHODS = Sets.newHashSet(
+			"cd", "pwd", "close"
+	);
 
 	@Before
 	public void setup() throws Exception{
@@ -55,7 +81,7 @@ public class ConnectionTest {
 	}
 
 	@Test
-	public void testLsReturnsConnection() throws Exception {
+	public void testLs() throws Exception {
 		ConnectionParameters parameters = mock(ConnectionParameters.class);
 		final Connection connection = factory.getConnection(parameters);
 		connection.ls(".");
@@ -63,7 +89,7 @@ public class ConnectionTest {
 	}
 
 	@Test
-	public void testGetReturnsConnection() throws Exception {
+	public void testGet() throws Exception {
 		ConnectionParameters parameters = mock(ConnectionParameters.class);
 		final Connection connection = factory.getConnection(parameters);
 		connection.get("", new ByteArrayOutputStream());
@@ -71,7 +97,7 @@ public class ConnectionTest {
 	}
 
 	@Test
-	public void testPutReturnsConnection() throws Exception {
+	public void testPut() throws Exception {
 		ConnectionParameters parameters = mock(ConnectionParameters.class);
 		final Connection connection = factory.getConnection(parameters);
 		connection.put(Paths.get(""), "test.txt");
@@ -79,13 +105,44 @@ public class ConnectionTest {
 	}
 
 	@Test
-	public void testMkdirReturnsConnection() throws Exception {
+	public void testMkdir() throws Exception {
 		ConnectionParameters parameters = mock(ConnectionParameters.class);
 		final Connection connection = factory.getConnection(parameters);
 		connection.mkdir("test");
 		channelPoolFactory.assertChannelReturned();
 	}
 
+
+	@Test
+	public void testTestExistsForEveryMethodUsingChannel() {
+		final Collection<Method> connectionMethods = Lists.newArrayList(Connection.class.getMethods());
+		final Collection<Method> testMethods = Lists.newArrayList(getClass().getMethods());
+
+		final Pattern testMethodPattern = Pattern.compile("test([A-Z][a-z].*).*");
+		final Collection<String> testedMethods = testMethods.stream()
+																									.filter(method -> {
+																										Matcher matcher = testMethodPattern.matcher(method.getName());
+																										return matcher.matches();
+																									}).map(method -> {
+																										Matcher matcher = testMethodPattern.matcher(method.getName());
+																										matcher.matches();
+																										return matcher.group(1).toLowerCase();
+																									}).collect(Collectors.toList());
+		testedMethods.addAll(EXCLUDED_METHODS);
+
+		final List<Method> missingMethods = connectionMethods.stream().filter(method -> {
+			boolean present = testedMethods.contains(method.getName());
+			return !present;
+		}).collect(Collectors.toList());
+		final String missingMethodNames = missingMethods.stream().map(Method::toString).collect(Collectors.joining(", "));
+		Assert.assertThat("The following methods are missing tests: " + missingMethodNames,
+											missingMethods.isEmpty(), is(true));
+	}
+
+	/**
+	 * Mocks a ChannelPoolFactory and maintains a reference to the mocked ChannelPool returned by the factory. This allows
+	 * us to verify that the ChannelPool#returnChannel method is invoked.
+	 */
 	private static class MockChannelPoolFactory {
 		private final ChannelPoolFactory factory;
 		private final ChannelPool pool;
