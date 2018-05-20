@@ -52,21 +52,21 @@ public class JschSftpChannel implements Channel {
 	}
 
 	@Override
-	public @NotNull Collection<String> ls(final @NotNull String path) throws SSHException {
+	public @NotNull Collection<RemoteFile> ls(final @NotNull String path) throws SSHException {
 		LOGGER.info("Using JSch ChannelSftp to obtain listing of directory: " + path);
 		Preconditions.checkArgument(!path.isEmpty(), "Empty string provided as path");
-		final Collection<String> files = Lists.newLinkedList();
+		final Collection<String> directoryListing = Lists.newLinkedList();
 		try {
 			@SuppressWarnings("rawtypes") final Iterable untypedFileNames = channel.ls(path);
 			for (final Object untypedFileName : untypedFileNames) {
 				final String fileName = untypedFileName.toString();
-				files.add(fileName);
+				directoryListing.add(fileName);
 			}
+			return RemoteFile.getRemoteFilesForDirectory(directoryListing);
 		} catch (final SftpException e) {
 			LOGGER.severe("Encountered an error obtaining the directory listing: " + e.getMessage());
 			throw new SSHException(e);
 		}
-		return files;
 	}
 
 	@Override

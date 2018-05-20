@@ -30,7 +30,7 @@ import java.util.Collection;
  */
 public interface Channel extends AutoCloseable{
 	void connect() throws SSHException;
-	@NotNull Collection<String> ls(final @NotNull String path) throws SSHException;
+	@NotNull Collection<RemoteFile> ls(final @NotNull String path) throws SSHException;
 	void put(final @NotNull Path source, final @NotNull String dest) throws SSHException;
 	void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException;
 	void mkdir(final @NotNull String path) throws SSHException;

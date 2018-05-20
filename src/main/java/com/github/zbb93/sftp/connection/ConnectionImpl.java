@@ -20,6 +20,7 @@ package com.github.zbb93.sftp.connection;
 import com.github.zbb93.sftp.channel.Channel;
 import com.github.zbb93.sftp.channel.ChannelPool;
 import com.github.zbb93.sftp.channel.ChannelPoolFactory;
+import com.github.zbb93.sftp.channel.RemoteFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -51,10 +52,10 @@ class ConnectionImpl implements Connection {
 	}
 
 	@Override
-	public @NotNull Collection<String> ls(final @NotNull String path) throws SSHException, InterruptedException {
+	public @NotNull Collection<RemoteFile> ls(final @NotNull String path) throws SSHException, InterruptedException {
 		LOGGER.info("Obtaining directory listing for directory: " + path);
 		final Channel channel = channelPool.getNextAvailableChannel();
-		final Collection<String> listing = channel.ls(path);
+		final Collection<RemoteFile> listing = channel.ls(path);
 		returnChannel(channel);
 		LOGGER.info("Successfully obtained directory listing.");
 		return listing;

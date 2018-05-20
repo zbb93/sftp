@@ -17,6 +17,7 @@
  */
 package com.github.zbb93.sftp.connection;
 
+import com.github.zbb93.sftp.channel.RemoteFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.OutputStream;
@@ -39,7 +40,7 @@ public interface Connection extends AutoCloseable {
 	 */
 	@NotNull
 	// todo implement an Object to parse these Strings and provide access to file attributes.
-	Collection<String> ls(final @NotNull String path) throws SSHException, InterruptedException;
+	Collection<RemoteFile> ls(final @NotNull String path) throws SSHException, InterruptedException;
 
 	/**
 	 * Uploads a file to the remote server.

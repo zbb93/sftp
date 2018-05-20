@@ -17,6 +17,7 @@
  */
 package com.github.zbb93.sftp;
 
+import com.github.zbb93.sftp.channel.RemoteFile;
 import com.github.zbb93.sftp.connection.Connection;
 import com.github.zbb93.sftp.connection.ConnectionFactory;
 import com.github.zbb93.sftp.connection.ConnectionParameters;
@@ -173,7 +174,7 @@ public final class SshServerIT {
 	public void testDirectoryListing() throws Exception {
 		final ConnectionParameters params = buildConnectionParameters();
 		try (final Connection connection = ConnectionFactory.INSTANCE.getConnection(params)) {
-			final Collection<String> directoryListing = connection.ls(".");
+			final Collection<RemoteFile> directoryListing = connection.ls(".");
 			final int workingDirFileCount = (int) Files.list(Paths.get("")).count();
 			// We add two to the working dir file count because the directory listing contains entries for '.' and '..'
 			Assert.assertThat("Incorrect file count in working directory", directoryListing.size(),
