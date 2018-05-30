@@ -83,6 +83,15 @@ public class JschSftpChannel implements Channel {
 	}
 
 	@Override
+	public void rm(final @NotNull String path) throws SSHException {
+		try {
+			channel.rm(path);
+		} catch (final SftpException e) {
+			throw new SSHException(e);
+		}
+	}
+
+	@Override
 	public void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException {
 		LOGGER.info(String.format("Using JSch ChannelSftp to download file %s", source));
 		try {

@@ -73,6 +73,13 @@ class ConnectionImpl implements Connection {
 	}
 
 	@Override
+	public void rm(final @NotNull String path) throws SSHException, InterruptedException {
+		final Channel channel = channelPool.getNextAvailableChannel();
+		channel.rm(path);
+		returnChannel(channel);
+	}
+
+	@Override
 	public void get(final @NotNull String source, final @NotNull OutputStream outputStream) throws SSHException,
 			InterruptedException {
 		LOGGER.info("Initializing download of file " + source);

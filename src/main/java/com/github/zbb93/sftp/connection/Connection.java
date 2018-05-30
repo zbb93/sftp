@@ -52,6 +52,8 @@ public interface Connection extends AutoCloseable {
 	 */
 	void put(final @NotNull Path source, final @NotNull String destination) throws SSHException, InterruptedException;
 
+	void rm(final @NotNull String path) throws SSHException, InterruptedException;
+
 	/**
 	 * Downloads a file from the remote server and writes the output to the provided OutputStream. The OutputStream is
 	 * flushed but not closed before the method returns.
