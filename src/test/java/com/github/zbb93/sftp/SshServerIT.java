@@ -147,7 +147,7 @@ public final class SshServerIT {
 			session.addPasswordIdentity(new String(SshServerIT.PASSWORD));
 			final AuthFuture authFuture = session.auth();
 			authFuture.verify(connectionTimeoutMs);
-			Assert.assertThat("Connection unsuccessful", true, is(session.isAuthenticated()));
+			Assert.assertThat("Connection unsuccessful", session.isAuthenticated(), is(true));
 		}
 	}
 
