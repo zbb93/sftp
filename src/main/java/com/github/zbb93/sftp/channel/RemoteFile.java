@@ -34,12 +34,56 @@ public class RemoteFile {
 	 */
 	private final @NotNull String name;
 
+	/**
+	 * The owner of this file.
+	 */
+	private final @NotNull String owner;
+
+	/**
+	 * Primary group of this files owner. This is the group that group permissions apply to.
+	 */
+	private final @NotNull String group;
+
+	/**
+	 * File size in bytes.
+	 */
+	private final long size;
+
+	/**
+	 * Flag that indicates whether this file is a directory.
+	 */
+	private final boolean directory;
+
 	private static final @NotNull Pattern FILE_LISTING = Pattern.compile(
-			"[a-z-]{10} +\\d+ +\\w+ +\\w+ +\\d+ \\w+ [0123][0-9] \\d{2}:\\d{2} ([A-Za-z.]+)"
+			"[dl-][rwx-]{9} +\\d+ +(\\w+) +(\\w+) +(\\d+) \\w+ [0123][0-9] \\d{2}:\\d{2} ([A-Za-z.]+)"
 	);
 
-	RemoteFile(final @NotNull String fileName) {
+	RemoteFile(final @NotNull String fileName, final @NotNull String owner, final @NotNull String group,
+						 final long size, final boolean directory) {
 		name = fileName;
+		this.owner = owner;
+		this.group = group;
+		this.size = size;
+		this.directory = directory;
+	}
+
+	public String getName() {
+		return name;
+	}
+	public String getOwner() {
+		return owner;
+	}
+
+	public String getGroup() {
+		return group;
+	}
+
+	public long getSize() {
+		return size;
+	}
+
+	public boolean isDirectory() {
+		return directory;
 	}
 
 	/**
@@ -54,19 +98,38 @@ public class RemoteFile {
 													 .map(fileListing -> {
 														 Matcher matcher = FILE_LISTING.matcher(fileListing);
 														 matcher.matches();
-														 String fileName = matcher.group(1);
-														 return new RemoteFile(fileName);
+														 long size = Long.parseLong(matcher.group(3));
+														 String owner = matcher.group(1);
+														 String group = matcher.group(2);
+														 String fileName = matcher.group(4);
+														 return new RemoteFile(fileName, owner, group, size, fileListing.charAt(0) == 'd');
 													 })
 													 .collect(Collectors.toList());
 	}
 
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		int hashCode = 13 * name.hashCode();
+		hashCode *= owner.hashCode();
+		hashCode *= group.hashCode();
+		hashCode *= directory ? 5 : 7;
+		hashCode *= Long.hashCode(size);
+		return hashCode;
 	}
 
 	@Override
+	@SuppressWarnings("MethodWithMultipleReturnPoints")
 	public boolean equals(final Object o) {
-		return name.equals(o);
+		if (o == null) {
+			return false;
+		}
+
+		if (!(o instanceof RemoteFile)) {
+			return false;
+		}
+
+		final RemoteFile other = (RemoteFile) o;
+		return name.equals(other.getName()) && owner.equals(other.getOwner()) && group.equals(other.getGroup()) &&
+					 directory == other.isDirectory() && size == other.getSize();
 	}
 }
