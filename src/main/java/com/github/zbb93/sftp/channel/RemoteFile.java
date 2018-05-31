@@ -152,8 +152,7 @@ public final class RemoteFile {
 		}
 
 		final RemoteFile other = (RemoteFile) o;
-		return name.equals(other.getName()) && owner.equals(other.getOwner()) && group.equals(other.getGroup()) &&
-					 directory == other.isDirectory() && size == other.getSize();
+		return name.equals(other.getName());
 	}
 
 	@Override
