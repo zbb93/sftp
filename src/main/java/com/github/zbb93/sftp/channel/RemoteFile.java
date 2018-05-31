@@ -18,6 +18,7 @@
 
 package com.github.zbb93.sftp.channel;
 
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -28,7 +29,8 @@ import java.util.stream.Collectors;
 /**
  * A file on the remote server.
  */
-public class RemoteFile {
+@SuppressWarnings("ClassWithoutLogger") // POJO that does not need logging.
+public final class RemoteFile {
 	/**
 	 * Relative name of the file.
 	 */
@@ -54,12 +56,18 @@ public class RemoteFile {
 	 */
 	private final boolean directory;
 
+	/**
+	 * Character used to indicate that a file is a directory in a UNIX file listing.
+	 */
+	private static final char DIRECTORY_FLAG = 'd';
+
+	@SuppressWarnings("LongLine")
 	private static final @NotNull Pattern FILE_LISTING = Pattern.compile(
-			"[dl-][rwx-]{9} +\\d+ +(\\w+) +(\\w+) +(\\d+) \\w+ [0123][0-9] \\d{2}:\\d{2} ([A-Za-z.]+)"
+			"[dl-][rwx-]{9} +\\d+ +(?<owner>\\w+) +(?<group>\\w+) +(?<size>\\d+) \\w+ [0123][0-9] \\d{2}:\\d{2} (?<name>[A-Za-z.]+)"
 	);
 
-	RemoteFile(final @NotNull String fileName, final @NotNull String owner, final @NotNull String group,
-						 final long size, final boolean directory) {
+	private RemoteFile(final @NotNull String fileName, final @NotNull String owner, final @NotNull String group,
+										 final long size, final boolean directory) {
 		name = fileName;
 		this.owner = owner;
 		this.group = group;
@@ -67,21 +75,27 @@ public class RemoteFile {
 		this.directory = directory;
 	}
 
-	public String getName() {
+	@SuppressWarnings("WeakerAccess")
+	public @NotNull String getName() {
 		return name;
 	}
-	public String getOwner() {
+
+	@SuppressWarnings("WeakerAccess")
+	public @NotNull String getOwner() {
 		return owner;
 	}
 
-	public String getGroup() {
+	@SuppressWarnings("WeakerAccess")
+	public @NotNull String getGroup() {
 		return group;
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public long getSize() {
 		return size;
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public boolean isDirectory() {
 		return directory;
 	}
@@ -95,16 +109,25 @@ public class RemoteFile {
 	static Collection<RemoteFile> getRemoteFilesForDirectory(final @NotNull Collection<String> directoryListing) {
 		return directoryListing.stream()
 													 .filter(fileListing -> (FILE_LISTING.matcher(fileListing).matches()))
-													 .map(fileListing -> {
-														 Matcher matcher = FILE_LISTING.matcher(fileListing);
-														 matcher.matches();
-														 long size = Long.parseLong(matcher.group(3));
-														 String owner = matcher.group(1);
-														 String group = matcher.group(2);
-														 String fileName = matcher.group(4);
-														 return new RemoteFile(fileName, owner, group, size, fileListing.charAt(0) == 'd');
-													 })
+													 .map(RemoteFile::parseFileListing)
 													 .collect(Collectors.toList());
+	}
+
+	/**
+	 * Uses the FILE_LISTING Pattern to create a RemoteFile object from a UNIX file listing.
+	 *
+	 * @param fileListing UNIX file listing to parse
+	 * @return RemoteFile created from the provided file listing.
+	 */
+	private static RemoteFile parseFileListing(final @NotNull CharSequence fileListing) {
+		final Matcher matcher = FILE_LISTING.matcher(fileListing);
+		Preconditions.checkArgument(matcher.matches());
+		final long size = Long.parseLong(matcher.group("size"));
+		final String owner = matcher.group("owner");
+		final String group = matcher.group("group");
+		final String fileName = matcher.group("name");
+		final boolean directory = fileListing.charAt(0) == DIRECTORY_FLAG;
+		return new RemoteFile(fileName, owner, group, size, directory);
 	}
 
 	@Override
@@ -131,5 +154,17 @@ public class RemoteFile {
 		final RemoteFile other = (RemoteFile) o;
 		return name.equals(other.getName()) && owner.equals(other.getOwner()) && group.equals(other.getGroup()) &&
 					 directory == other.isDirectory() && size == other.getSize();
+	}
+
+	@Override
+	@SuppressWarnings("MagicCharacter")
+	public String toString() {
+		return "RemoteFile{" +
+					 "name='" + name + '\'' +
+					 ", owner='" + owner + '\'' +
+					 ", group='" + group + '\'' +
+					 ", size=" + size +
+					 ", directory=" + directory +
+					 '}';
 	}
 }
