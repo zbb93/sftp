@@ -39,7 +39,7 @@ public abstract class AbstractChannelPool implements ChannelPool {
 	@SuppressWarnings("HardcodedFileSeparator")
 	private static final char UNIX_FILE_SEPARATOR = '/';
 
-	AbstractChannelPool(final int poolSize) {
+	protected AbstractChannelPool(final int poolSize) {
 		this.poolSize = poolSize;
 		workingDirectory = "";
 		channelPool = Queues.newLinkedBlockingQueue(poolSize);
@@ -53,7 +53,7 @@ public abstract class AbstractChannelPool implements ChannelPool {
 		LOGGER.info("Connection pool initialized successfully.");
 	}
 
-	abstract void connect() throws SSHException;
+	protected abstract void connect() throws SSHException;
 
 	private void initializeChannels() throws SSHException {
 		Channel channel = getChannel();
@@ -64,7 +64,7 @@ public abstract class AbstractChannelPool implements ChannelPool {
 		} while (channelPool.remainingCapacity() > 0);
 	}
 
-	abstract Channel getChannel() throws SSHException;
+	protected abstract Channel getChannel() throws SSHException;
 
 	@Override
 	public @NotNull Channel getNextAvailableChannel() throws SSHException, InterruptedException {
@@ -117,13 +117,13 @@ public abstract class AbstractChannelPool implements ChannelPool {
 		LOGGER.info("Successfully disconnected from remote server.");
 	}
 
-	void clearByteArray(final @NotNull byte[] bytes) {
+	protected void clearByteArray(final @NotNull byte[] bytes) {
 		for (int i = 0; i < bytes.length; i++) {
 			bytes[i] = NULL_BYTE;
 		}
 	}
 
-	int getPoolSize() {
+	protected int getPoolSize() {
 		return poolSize;
 	}
 }

@@ -16,8 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp;
+package com.github.zbb93.sftp.jsch;
 
+import com.github.zbb93.sftp.Channel;
+import com.github.zbb93.sftp.RemoteFile;
+import com.github.zbb93.sftp.SSHException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.JSchException;

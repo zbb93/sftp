@@ -18,6 +18,7 @@
 
 package com.github.zbb93.sftp;
 
+import com.github.zbb93.sftp.jsch.JschChannelPool;
 import org.jetbrains.annotations.NotNull;
 
 /**

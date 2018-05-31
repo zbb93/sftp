@@ -15,8 +15,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.zbb93.sftp;
+package com.github.zbb93.sftp.jsch;
 
+import com.github.zbb93.sftp.AbstractChannelPool;
+import com.github.zbb93.sftp.Channel;
+import com.github.zbb93.sftp.RemoteHost;
+import com.github.zbb93.sftp.SSHException;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -26,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
-class JschChannelPool extends AbstractChannelPool {
+public class JschChannelPool extends AbstractChannelPool {
 	// JSch has a static configuration map that is shared amongst all instances of JSch objects.
 	static {
 		final Hashtable<String, String> config = new Hashtable<>(1);
@@ -49,8 +53,8 @@ class JschChannelPool extends AbstractChannelPool {
 	private static final @NotNull Logger LOGGER = Logger.getLogger(JschChannelPool.class.getName());
 
 	@SuppressWarnings("FeatureEnvy")
-	JschChannelPool(final @NotNull RemoteHost host, final @NotNull String user, final byte[] password, final int poolSize)
-			throws SSHException {
+	public JschChannelPool(final @NotNull RemoteHost host, final @NotNull String user, final byte[] password,
+												 final int poolSize) throws SSHException {
 		super(poolSize);
 		final String url = host.getUrl();
 		final int port = host.getPort();
@@ -85,7 +89,7 @@ class JschChannelPool extends AbstractChannelPool {
 	 * @throws SSHException if an error occurs while connecting to the remote server.
 	 */
 	@Override
-	public void connect() throws SSHException {
+	protected void connect() throws SSHException {
 		final String user = session.getUserName();
 		final String host = session.getHost();
 		LOGGER.info(String.format("Delegating channel creation for %s@%s to JSch...", user, host));
@@ -98,7 +102,7 @@ class JschChannelPool extends AbstractChannelPool {
 	}
 
 	@Override
-	public Channel getChannel() throws SSHException {
+	protected Channel getChannel() throws SSHException {
 		LOGGER.info("Obtaining Channel from JSch...");
 		try {
 			final ChannelSftp channel = (ChannelSftp) session.openChannel(SFTP_CHANNEL);

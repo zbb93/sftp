@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * A file on the remote server.
  */
 @SuppressWarnings("ClassWithoutLogger") // POJO that does not need logging.
-class RemoteFile {
+public class RemoteFile {
 	/**
 	 * Relative name of the file.
 	 */
@@ -106,7 +106,7 @@ class RemoteFile {
 	 * @param directoryListing Collection of String file listings.
 	 * @return Collection of RemoteFiles created by parsing the file listings.
 	 */
-	static Collection<RemoteFile> getRemoteFilesForDirectory(final @NotNull Collection<String> directoryListing) {
+	public static Collection<RemoteFile> getRemoteFilesForDirectory(final @NotNull Collection<String> directoryListing) {
 		return directoryListing.stream()
 													 .filter(fileListing -> (FILE_LISTING.matcher(fileListing).matches()))
 													 .map(RemoteFile::parseFileListing)

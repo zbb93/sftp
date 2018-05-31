@@ -21,10 +21,10 @@ package com.github.zbb93.sftp;
  * Generic Exception that is thrown when an Exception occurs during interaction with an SSH server.
  */
 @SuppressWarnings("ClassWithoutLogger") // Exceptions do not need their own loggers.
-class SSHException extends Exception {
+public class SSHException extends Exception {
 	private static final long serialVersionUID = -3334244288075543948L;
 
-	SSHException(final Throwable cause) {
+	public SSHException(final Throwable cause) {
 		super(cause);
 	}
 }

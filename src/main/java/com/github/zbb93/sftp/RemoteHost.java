@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
  * POJO used to build a Connection.
  */
 @SuppressWarnings("ClassWithoutLogger") // POJO does not need logger
-class RemoteHost {
+public class RemoteHost {
 
 	/**
 	 * URL of the remote server.
@@ -47,15 +47,15 @@ class RemoteHost {
 		this.timeout = timeout;
 	}
 
-	@NotNull String getUrl() {
+	public @NotNull String getUrl() {
 		return url;
 	}
 
-	int getPort() {
+	public int getPort() {
 		return port;
 	}
 
-	int getTimeout() {
+	public int getTimeout() {
 		return timeout;
 	}
 
