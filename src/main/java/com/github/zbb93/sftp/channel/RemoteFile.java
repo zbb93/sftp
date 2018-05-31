@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * A file on the remote server.
  */
 @SuppressWarnings("ClassWithoutLogger") // POJO that does not need logging.
-public final class RemoteFile {
+public class RemoteFile {
 	/**
 	 * Relative name of the file.
 	 */
