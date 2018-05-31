@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp.channel;
+package com.github.zbb93.sftp;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * A file on the remote server.
  */
 @SuppressWarnings("ClassWithoutLogger") // POJO that does not need logging.
-public class RemoteFile {
+class RemoteFile {
 	/**
 	 * Relative name of the file.
 	 */

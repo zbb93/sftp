@@ -15,14 +15,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.zbb93.sftp.connection;
+package com.github.zbb93.sftp;
 
 /**
  * Generic Exception that is thrown when an Exception occurs during interaction with an SSH server.
  */
-// todo this may belong in the sftp package.
-public class SSHException extends Exception {
-	public SSHException(final Throwable cause) {
+@SuppressWarnings("ClassWithoutLogger") // Exceptions do not need their own loggers.
+class SSHException extends Exception {
+	private static final long serialVersionUID = -3334244288075543948L;
+
+	SSHException(final Throwable cause) {
 		super(cause);
 	}
 }

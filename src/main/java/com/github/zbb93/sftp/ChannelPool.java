@@ -10,15 +10,14 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * Lesser GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp.channel;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.connection.SSHException;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -16,11 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp.connection;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.channel.Channel;
-import com.github.zbb93.sftp.channel.ChannelPool;
-import com.github.zbb93.sftp.channel.ChannelPoolFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -41,7 +38,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**

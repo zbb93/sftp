@@ -15,16 +15,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.zbb93.sftp.connection;
+package com.github.zbb93.sftp;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 /**
  * Contains parameters that are used to obtain a connection to the remote server. This class should be instantiated
  * through the Builder class.
  */
-@SuppressWarnings("ClassWithOnlyPrivateConstructors") // Mockito can't mock final classes.
+// TODO should this logic just be moved to the ConnectionFactory?
+// Mockito can't mock final classes
+// POJO does not need logger
+@SuppressWarnings({"ClassWithOnlyPrivateConstructors", "ClassWithoutLogger"})
 public class ConnectionParameters {
 
 	/**
@@ -69,15 +74,11 @@ public class ConnectionParameters {
 	 */
 	private final @NotNull Provider provider;
 
+	private final @NotNull RemoteHost remoteHost;
 	/**
 	 * Default Connection provider.
 	 */
 	private static final @NotNull Provider DEFAULT_PROVIDER = Provider.JSCH;
-
-	/**
-	 * URL of the remote server.
-	 */
-	private final @NotNull String host;
 
 	/**
 	 * Username of the account to use on the remote server.
@@ -93,16 +94,6 @@ public class ConnectionParameters {
 	 * Method of authentication.
 	 */
 	private final @NotNull AuthenticationMode authenticationMode;
-
-	/**
-	 * Port to connect to on the remote server.
-	 */
-	private final int port;
-
-	/**
-	 * Seconds to wait for a response from the remote server during any operation. The default value is 60.
-	 */
-	private final int timeout;
 
 	/**
 	 * Default timeout value in seconds.
@@ -122,78 +113,61 @@ public class ConnectionParameters {
 
 	/**
 	 * @param provider method the ChannelPool will use to obtain channels.
-	 * @param host the URL of the remote server.
+	 * @param remoteHost the host to connect to.
 	 * @param user username for the remote user.
 	 * @param password password for the remote user.
-	 * @param port the port to connect to on the remote server.
-	 * @param timeout amount of time (in seconds) to wait for a response from the remote server during any operation.
 	 */
-	private ConnectionParameters(final @NotNull Provider provider, final @NotNull String host, final @NotNull String user,
-															 final @NotNull byte[] password, final int port, final int timeout,
-															 final int channelPoolSize) {
+	private ConnectionParameters(final @NotNull Provider provider, final @NotNull RemoteHost remoteHost,
+															 final @NotNull String user, final @NotNull byte[] password, final int channelPoolSize) {
 		this.provider = provider;
-		this.host = host;
+		this.remoteHost = remoteHost;
 		this.user = user;
 		this.password = password;
 		authenticationMode = AuthenticationMode.PASSWORD;
-		this.port = port;
-		this.timeout = timeout;
 		this.channelPoolSize = channelPoolSize;
 	}
 
 	/**
 	 * @return the URL of the remote server.
 	 */
-	public @NotNull String getHost() {
-		return host;
-	}
-
-	/**
-	 * @return the port to connect to on the remote server.
-	 */
-	public int getPort() {
-		return port;
-	}
-
-	/**
-	 * @return the amount of time (in seconds) to wait for a response from the remote server during any operation.
-	 */
-	public int getTimeout() {
-		return timeout;
+	@NotNull RemoteHost getRemoteHost() {
+		return remoteHost;
 	}
 
 	/**
 	 * @return number of channels that will be maintained by the Connection created from these ConnectionParameters.
 	 */
-	public int getChannelPoolSize() {
+	int getChannelPoolSize() {
 		return channelPoolSize;
 	}
 
 	/**
 	 * @return method of authentication for this connection.
 	 */
-	public AuthenticationMode getAuthenticationMode() {
+	@NotNull AuthenticationMode getAuthenticationMode() {
 		return authenticationMode;
 	}
 
 	/**
 	 * @return username of the remote user.
 	 */
-	public @NotNull String getUser() {
+	@NotNull String getUser() {
 		return user;
 	}
 
 	/**
 	 * @return password of the remote user.
 	 */
-	public @NotNull byte[] getPassword() {
+	@NotNull byte[] getPassword() {
+		// We want for this array to be cleared after use.
+		//noinspection AssignmentOrReturnOfFieldWithMutableType
 		return password;
 	}
 
 	/**
 	 * @return provider that the connection will use to interact with the remote server.
 	 */
-	public @NotNull Provider getProvider() {
+	@NotNull Provider getProvider() {
 		return provider;
 	}
 
@@ -202,6 +176,7 @@ public class ConnectionParameters {
 	 * not explicitly set. Required parameters should be set by this objects constructor and optional values should be
 	 * set using a setter method after the builder has been instantiated.
 	 */
+	@SuppressWarnings({"ClassHasNoToStringMethod", "WeakerAccess"})
 	public static class Builder {
 		private @NotNull Provider provider;
 
@@ -218,12 +193,12 @@ public class ConnectionParameters {
 		/**
 		 * Username of the account to use on the remote server.
 		 */
-		private @NotNull String user;
+		private final @NotNull String user;
 
 		/**
 		 * Byte array containing the password to authenticate with.
 		 */
-		private @NotNull byte[] password;
+		private final @NotNull byte[] password;
 
 		/**
 		 * Port to connect to on the remote server. This must be an integer value greater than zero.
@@ -244,8 +219,9 @@ public class ConnectionParameters {
 
 		/**
 		 * @param host the URL of the remote server.
-		 * @param user
-		 * @parm password
+		 * @param user username of the account to authenticate with.
+		 * @param password password of the account to authenticate with. <b>IT IS THE CALLERS RESPONSIBILITY TO CLEAR THIS
+		 *                   ARRAY.</b>
 		 * @param port the port to connect to on the remote server.
 		 * @throws IllegalArgumentException if port is not a positive non-zero integer.
 		 */
@@ -255,7 +231,7 @@ public class ConnectionParameters {
 			this.host = host;
 			authenticationMode = AuthenticationMode.PASSWORD;
 			this.user = user;
-			this.password = password;
+			this.password = password.clone();
 			Preconditions.checkArgument(port > 0, "Cannot establish a connection to a port that is " +
 					"not greater than zero.");
 			this.port = port;
@@ -298,13 +274,27 @@ public class ConnectionParameters {
 		 * @throws IllegalStateException if required parameters are not set.
 		 */
 		public @NotNull ConnectionParameters build() {
-			ConnectionParameters parameters;
+			final ConnectionParameters parameters;
+			final RemoteHost remoteHost = new RemoteHost(host, port, timeout);
 			if (authenticationMode == AuthenticationMode.PASSWORD) {
-				parameters = new ConnectionParameters(provider, host, user, password, port, timeout, channelPoolSize);
+				parameters = new ConnectionParameters(provider, remoteHost, user, password, channelPoolSize);
 			} else {
 				throw new IllegalStateException("Unrecognized authentication mode: " + authenticationMode);
 			}
 			return parameters;
 		}
+	}
+
+	@Override
+	@SuppressWarnings("MagicCharacter")
+	public String toString() {
+		return "ConnectionParameters{" +
+					 "provider=" + provider +
+					 ", host='" + remoteHost + '\'' +
+					 ", user='" + user + '\'' +
+					 ", password=" + Arrays.toString(password) +
+					 ", authenticationMode=" + authenticationMode +
+					 ", channelPoolSize=" + channelPoolSize +
+					 '}';
 	}
 }

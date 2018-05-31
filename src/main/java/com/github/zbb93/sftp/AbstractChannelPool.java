@@ -16,10 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp.channel;
+package com.github.zbb93.sftp;
 
 import com.diffplug.common.base.Errors;
-import com.github.zbb93.sftp.connection.SSHException;
 import com.google.common.collect.Queues;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,10 +36,12 @@ public abstract class AbstractChannelPool implements ChannelPool {
 
 	private static final @NotNull Logger LOGGER = Logger.getLogger(AbstractChannelPool.class.getName());
 	private static final byte NULL_BYTE = (byte) '\0';
+	@SuppressWarnings("HardcodedFileSeparator")
 	private static final char UNIX_FILE_SEPARATOR = '/';
 
-	AbstractChannelPool(final int poolSize) throws SSHException{
+	AbstractChannelPool(final int poolSize) {
 		this.poolSize = poolSize;
+		workingDirectory = "";
 		channelPool = Queues.newLinkedBlockingQueue(poolSize);
 	}
 
@@ -94,7 +95,7 @@ public abstract class AbstractChannelPool implements ChannelPool {
 	}
 
 	@Override
-	public String getWorkingDirectory() {
+	public @NotNull String getWorkingDirectory() {
 		return workingDirectory;
 	}
 
@@ -117,8 +118,8 @@ public abstract class AbstractChannelPool implements ChannelPool {
 	}
 
 	void clearByteArray(final @NotNull byte[] bytes) {
-		for (byte bite : bytes) {
-			bite = NULL_BYTE;
+		for (int i = 0; i < bytes.length; i++) {
+			bytes[i] = NULL_BYTE;
 		}
 	}
 

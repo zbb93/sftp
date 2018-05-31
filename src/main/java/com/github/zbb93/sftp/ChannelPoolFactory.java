@@ -16,17 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp.channel;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.connection.ConnectionParameters;
-import com.github.zbb93.sftp.connection.SSHException;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Takes a ConnectionParameters object and based on the parameters determines an implementation of ChannelPool to
  * return.
  */
-@SuppressWarnings("FeatureEnvy")
+@SuppressWarnings({"FeatureEnvy", "ClassWithoutLogger"})
 public class ChannelPoolFactory {
 	/**
 	 * Global singleton that should be used to create ChannelPool objects.
@@ -62,12 +60,10 @@ public class ChannelPoolFactory {
 	 * @throws SSHException if an error occurs while establishing the connection or opening channels.
 	 */
 	private ChannelPool getJschChannelPool(final @NotNull ConnectionParameters params) throws SSHException {
-		final String host = params.getHost();
+		final RemoteHost host = params.getRemoteHost();
 		final String user = params.getUser();
 		final byte[] password = params.getPassword();
-		final int port = params.getPort();
-		final int timeout = params.getTimeout();
 		final int poolSize = params.getChannelPoolSize();
-		return new JschChannelPool(host, user, password, port, timeout, poolSize);
+		return new JschChannelPool(host, user, password, poolSize);
 	}
 }

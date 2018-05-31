@@ -18,8 +18,6 @@
 
 package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.channel.RemoteFileTest;
-import com.github.zbb93.sftp.connection.ChannelReturnTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

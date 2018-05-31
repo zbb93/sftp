@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp.channel;
+package com.github.zbb93.sftp;
 
 import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;

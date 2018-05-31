@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.zbb93.sftp.connection;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.channel.RemoteFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.OutputStream;

@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.zbb93.sftp.channel;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.connection.SSHException;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -49,10 +48,14 @@ class JschChannelPool extends AbstractChannelPool {
 
 	private static final @NotNull Logger LOGGER = Logger.getLogger(JschChannelPool.class.getName());
 
-	JschChannelPool(final @NotNull String host, final @NotNull String user, final byte[] password, final int port,
-									final int timeout, final int poolSize) throws SSHException {
+	@SuppressWarnings("FeatureEnvy")
+	JschChannelPool(final @NotNull RemoteHost host, final @NotNull String user, final byte[] password, final int poolSize)
+			throws SSHException {
 		super(poolSize);
-		session = buildJschSession(host, user, password, port, timeout);
+		final String url = host.getUrl();
+		final int port = host.getPort();
+		final int timeout = host.getTimeout();
+		session = buildJschSession(url, user, password, port, timeout);
 	}
 
 	private Session buildJschSession(final @NotNull String host, final @NotNull String user, final byte[] password,
@@ -99,9 +102,10 @@ class JschChannelPool extends AbstractChannelPool {
 		LOGGER.info("Obtaining Channel from JSch...");
 		try {
 			final ChannelSftp channel = (ChannelSftp) session.openChannel(SFTP_CHANNEL);
-			channel.connect();
+			final Channel jschSftpChannel = new JschSftpChannel(channel);
+			jschSftpChannel.connect();
 			LOGGER.info("Successfully obtained Channel from JSch");
-			return new JschSftpChannel(channel);
+			return jschSftpChannel;
 		} catch (final JSchException e) {
 			LOGGER.severe("An error has occurred while attempting to obtain a channel: " + e.getMessage());
 			throw new SSHException(e);

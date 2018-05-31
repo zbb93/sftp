@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.zbb93.sftp.connection;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.channel.ChannelPoolFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
@@ -46,9 +45,10 @@ public class ConnectionFactory {
 	 * @throws SSHException if the host of the ConnectionParameters cannot be resolved.
 	 */
 	public Connection getConnection(final @NotNull ConnectionParameters connectionParameters) throws SSHException {
-		final String host = connectionParameters.getHost();
+		final RemoteHost remoteHost = connectionParameters.getRemoteHost();
+		final String url = remoteHost.getUrl();
 		final String user = connectionParameters.getUser();
-		LOGGER.info(String.format("Obtaining connection for %s@%s", user, host));
+		LOGGER.info(String.format("Obtaining connection for %s@%s", user, url));
 		return new ConnectionImpl(connectionParameters, ChannelPoolFactory.INSTANCE);
 	}
 }

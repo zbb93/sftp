@@ -17,11 +17,6 @@
  */
 package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.channel.RemoteFile;
-import com.github.zbb93.sftp.connection.Connection;
-import com.github.zbb93.sftp.connection.ConnectionFactory;
-import com.github.zbb93.sftp.connection.ConnectionParameters;
-import com.github.zbb93.sftp.connection.SSHException;
 import com.google.common.collect.Lists;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.future.AuthFuture;
@@ -109,8 +104,6 @@ public final class SshServerIT {
 
 	/**
 	 * This test uses an unroutable IP address to ensure that connection timeout is working as expected.
-	 *
-	 * @throws SSHException if an unexpected error occurs while connecting to the SSH server.
 	 */
 	@Test
 	public void testConnectionTimeout() {
@@ -123,9 +116,9 @@ public final class SshServerIT {
 	}
 
 	private ConnectionParameters buildPasswordConnectionParameters(final String host, final int timeout) {
-		final ConnectionParameters.Builder builder = new ConnectionParameters.Builder(host, SshServerIT.USERNAME,
-																																									SshServerIT.PASSWORD,
-																																									SshServerIT.PORT);
+		final ConnectionParameters.Builder builder = new ConnectionParameters.Builder(host, USERNAME,
+																																									PASSWORD,
+																																									PORT);
 		builder.setTimeout(timeout);
 		return builder.build();
 	}
@@ -141,10 +134,10 @@ public final class SshServerIT {
 		final long connectionTimeoutMs = DEFAULT_TIMEOUT * 1000L;
 		final SshClient client = SshClient.setUpDefaultClient();
 		client.start();
-		final ConnectFuture connectFuture = client.connect(SshServerIT.USERNAME, SshServerIT.HOST, SshServerIT.PORT);
+		final ConnectFuture connectFuture = client.connect(USERNAME, HOST, PORT);
 		final ConnectFuture future = connectFuture.verify(connectionTimeoutMs);
 		try (final ClientSession session = future.getSession()) {
-			session.addPasswordIdentity(new String(SshServerIT.PASSWORD));
+			session.addPasswordIdentity(new String(PASSWORD));
 			final AuthFuture authFuture = session.auth();
 			authFuture.verify(connectionTimeoutMs);
 			Assert.assertThat("Connection unsuccessful", session.isAuthenticated(), is(true));

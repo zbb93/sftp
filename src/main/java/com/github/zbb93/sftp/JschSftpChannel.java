@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp.channel;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.connection.SSHException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.JSchException;
@@ -143,5 +142,14 @@ public class JschSftpChannel implements Channel {
 		LOGGER.info("Closing JSch ChannelSftp...");
 		channel.disconnect();
 		LOGGER.info("Closed JSch ChannelSftp.");
+	}
+
+	@SuppressWarnings("MagicCharacter")
+	@Override
+	public String toString() {
+		// todo manually pull information from JSch ChannelSftp
+		return "JschSftpChannel{" +
+					 "channel=" + channel +
+					 '}';
 	}
 }

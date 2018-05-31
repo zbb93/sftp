@@ -15,15 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.zbb93.sftp.connection;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.channel.Channel;
-import com.github.zbb93.sftp.channel.ChannelPool;
-import com.github.zbb93.sftp.channel.ChannelPoolFactory;
-import com.github.zbb93.sftp.channel.RemoteFile;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -118,12 +113,20 @@ class ConnectionImpl implements Connection {
 	}
 	/**
 	 * Disconnects the RemoteSession from the SSH server.
-	 * @throws IOException if an error occurs disconnecting from the SSH server.
+	 * @throws SSHException if an error occurs disconnecting from the SSH server.
 	 */
 	@Override
 	public void close() throws SSHException {
 		LOGGER.info("Disconnecting from remote server...");
 		channelPool.close();
 		LOGGER.info("Successfully disconnected from remote server.");
+	}
+
+	@SuppressWarnings("MagicCharacter")
+	@Override
+	public String toString() {
+		return "ConnectionImpl{" +
+					 "channelPool=" + channelPool +
+					 '}';
 	}
 }

@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.zbb93.sftp.channel;
+package com.github.zbb93.sftp;
 
-import com.github.zbb93.sftp.connection.SSHException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.OutputStream;
@@ -38,5 +37,5 @@ public interface Channel extends AutoCloseable{
 	String pwd() throws SSHException;
 	void cd(final @NotNull String targetDirectory) throws SSHException;
 	@Override
-	void close() throws SSHException;
+	void close();
 }
